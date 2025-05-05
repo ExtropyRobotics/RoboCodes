@@ -19,8 +19,7 @@ public class Heco extends LinearOpMode {
 
     DcMotor launcher1 = null;
     DcMotor launcher2 = null;
-    DcMotor sliderRight = null;
-    DcMotor sliderLeft = null;
+    DcMotor slider = null;
     int targetSlider = 0;
     boolean launcherToggle = false;
     boolean launched = false;
@@ -30,25 +29,21 @@ public class Heco extends LinearOpMode {
 
         launcher1 = hardwareMap.get(DcMotor.class, "launcher1");
         launcher2 = hardwareMap.get(DcMotor.class, "launcher2");
-        sliderRight = hardwareMap .get(DcMotor.class, "sliderRight");
-        sliderLeft = hardwareMap.get(DcMotor.class, "sliderLeft");
+        slider = hardwareMap .get(DcMotor.class, "slider");
 
-        initMotor(sliderLeft, DcMotorSimple.Direction.FORWARD);
-        initMotor(sliderRight, DcMotorSimple.Direction.FORWARD);
+        initMotor(slider, DcMotorSimple.Direction.REVERSE);
 
         launcher1.setDirection(DcMotorSimple.Direction.REVERSE);
         launcher2.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        sliderRight.setTargetPosition(targetSlider);
-        sliderLeft.setTargetPosition(targetSlider);
+        slider.setTargetPosition(targetSlider);
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
 
         waitForStart();
-        sliderLeft.setPower(1);
-        sliderRight.setPower(1);
+        slider.setPower(1);
 
         follower.startTeleopDrive();
 
@@ -56,13 +51,16 @@ public class Heco extends LinearOpMode {
             follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
             follower.update();
 
-            if(gamepad2.right_stick_y < 0 && targetSlider < 2100) targetSlider += 40;
-            if(gamepad2.right_stick_y > 0 && targetSlider > 0) targetSlider -= 40;
+            if(gamepad2.right_stick_y > 0) targetSlider -= 5;
+            if(gamepad2.right_stick_y < 0) targetSlider += 5;
+
+            if(targetSlider < 0) targetSlider = 0;
+            if(targetSlider > 1100) targetSlider = 1100;
 
             if(gamepad2.a){
                 if(!launcherToggle){
-                    if(launched) {
-                        launcher1.setPower(1);
+                    if(!launched) {
+                        launcher1.setPower(-1);
                         launcher2.setPower(1);
                     } else{
                         launcher1.setPower(0);
@@ -74,8 +72,10 @@ public class Heco extends LinearOpMode {
                 }
             } else launcherToggle = false;
 
-            sliderRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            sliderLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slider.setTargetPosition(targetSlider);
+            slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            telemetry.addData("slider", targetSlider);
+            telemetry.update();
         }
     }
     private void initMotor(DcMotor motor, DcMotorSimple.Direction direction){
