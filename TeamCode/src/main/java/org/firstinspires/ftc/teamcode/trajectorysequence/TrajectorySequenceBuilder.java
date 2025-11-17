@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.trajectorysequence;
 
+import static org.firstinspires.ftc.teamcode.drive.SampleTankDrive.accelConstraint;
+
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.path.PathContinuityViolationException;
@@ -329,8 +331,7 @@ public class TrajectorySequenceBuilder {
     }
 
     public TrajectorySequenceBuilder setConstraints(
-            TrajectoryVelocityConstraint velConstraint,
-            TrajectoryAccelerationConstraint accelConstraint
+            TrajectoryVelocityConstraint velConstraint
     ) {
         this.currentVelConstraint = velConstraint;
         this.currentAccelConstraint = accelConstraint;

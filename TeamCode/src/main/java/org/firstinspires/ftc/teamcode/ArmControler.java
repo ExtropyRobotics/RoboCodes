@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -14,6 +15,7 @@ public class ArmControler {
 
     double rotateAngle;
 
+    private AnalogInput axonServo;
     private DcMotor slider;
     private DcMotor axDown;
     private DcMotor axUp;
@@ -35,6 +37,8 @@ public class ArmControler {
 
     public ArmControler(HardwareMap hardwareMap, Telemetry telemetry){
         this.telemetry = telemetry;
+
+        axonServo = hardwareMap.get(AnalogInput.class,"axon1");
 
         slider = hardwareMap.get(DcMotor.class, "brat");
         axDown = hardwareMap.get(DcMotor.class, "axDown");
@@ -79,6 +83,9 @@ public class ArmControler {
         axUp.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         return axDirection;
     }
+    public double getServoVoltage(AnalogInput input){
+        return input.getVoltage() / 3.3 * 360;
+    }
     public int setSliderPoz (int targetPozSlider){
         if(targetPozSlider - slider.getCurrentPosition() > 5) sliderDirection = 1;
         if(targetPozSlider - slider.getCurrentPosition() < -5) sliderDirection = -1;
@@ -105,7 +112,7 @@ public class ArmControler {
     }
     public void setWristParalel(double offset, double multiplier){
         rotateAngle = axUp.getCurrentPosition()/900.0 * 360;
-        double pos = -rotateAngle / 500 * (0.497-0.61) * multiplier + offset;
+        double pos = -rotateAngle / 500 * (0-0.6191) * multiplier + offset;
         setWrist(pos);
     }
     public void callTelemetry (){
@@ -122,6 +129,7 @@ public class ArmControler {
         telemetry.addData("11. Load in amps slider ", ((DcMotorEx)slider).getCurrent(CurrentUnit.MILLIAMPS));
         telemetry.addData("12. ClawPos ", clawPos);
         telemetry.addData("13. wristPoz", wristPos);
+        telemetry.addData("14. servoVoltage", getServoVoltage(axonServo));
     }
     private double getAmps(DcMotor motor){
         return ((DcMotorEx)motor).getCurrent(CurrentUnit.MILLIAMPS);
@@ -140,4 +148,5 @@ public class ArmControler {
         axUp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
+
 }
