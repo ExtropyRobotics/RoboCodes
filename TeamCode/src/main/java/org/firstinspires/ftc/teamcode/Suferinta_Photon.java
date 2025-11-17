@@ -8,6 +8,7 @@ import com.outoftheboxrobotics.photoncore.hardware.PhotonLynxVoltageSensor;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.VoltageUnit;
 import org.firstinspires.ftc.teamcode.auto.RegioLeft;
@@ -16,10 +17,10 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 
 @Photon
-@TeleOp(name = "!!! NATIONALA TELEOP")
-public class NatioTeleOp extends LinearOpMode {
+@TeleOp(name = "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1Suferinta_Photon")
+public class Suferinta_Photon extends LinearOpMode {
     SampleMecanumDrive drive;
-    ArmControler brat;
+    ArmControler_Photon brat;
     LynxModule control;
 
     int targetAx;
@@ -40,10 +41,13 @@ public class NatioTeleOp extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        ElapsedTime time = new ElapsedTime();
+        double lastTime = 0;
+
         PhotonLynxVoltageSensor sensor = hardwareMap.getAll(PhotonLynxVoltageSensor.class).iterator().next();
         telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry(),telemetry);
         drive = new SampleMecanumDrive(hardwareMap);
-        brat = new ArmControler(hardwareMap, telemetry);
+        brat = new ArmControler_Photon(hardwareMap, telemetry);
 
         control = hardwareMap.get(LynxModule.class,"Control Hub");
 
@@ -55,6 +59,8 @@ public class NatioTeleOp extends LinearOpMode {
 
         waitForStart();
 
+        lastTime = time.time();
+
         brat.setPower(0.3);
         brat.setPowerSlider(0.3);
         double voltage;
@@ -62,66 +68,71 @@ public class NatioTeleOp extends LinearOpMode {
         while (opModeIsActive()) {
             voltage = sensor.getCachedVoltage();
 
-            telemetry.addData("Battery Voltage ", voltage);
+            telemetry.addData("time0 ", 1/(time.time()-lastTime));
+            lastTime = time.time();
 
+
+
+           telemetry.addData("Battery Voltage ", voltage);
+//
             drive.setWeightedDrivePower(new Pose2d(
                     -gamepad1.left_stick_y,
                     -gamepad1.left_stick_x,
                     -gamepad1.right_stick_x
             ));
-
-            // set the wrist to be parallel to ground or parallel to high chamber or wall
-            if(gamepad2.right_bumper){
-                if(parallelToggle) {
-                    if(parallelOnce) {
-                        parallelOffset = 0.5672;
-                        multiplier = 1;
-                    }
-                    else{
-                        parallelOffset = 0.497;
-                        multiplier = 0;
-                    }
-                    parallelOnce = !parallelOnce;
-                    parallelToggle = false;
-                }
-            } else parallelToggle = true;
-
-            if(gamepad2.y){
-                clawPos = 0;
-                clawOnce = false;
-                clawToggle = false;
-                parallelOnce = false;
-                parallelOffset = 0.5178;
-                multiplier = 1;
-                targetAx = 100;
-            }
-
-            if(gamepad2.x){
-                clawPos = 0.15;
-                parallelOnce = true;
-                parallelOffset = 0.497;
-                multiplier = 0;
-                targetAx = 450;
-                clawOnce = true;
-                clawToggle = false;
-            }
-
-            brat.setWristParalel(parallelOffset, multiplier);
-
-            // toggle the claw from closed to open
-            if(gamepad2.a){
-                if(!clawToggle){
-                    if(clawOnce) clawPos = 0;
-                    else clawPos = 0.15;
-
-                    clawOnce = !clawOnce;
-                    clawToggle = true;
-                }
-            } else clawToggle = false;
-
-            brat.setClaw(clawPos);
-
-
+//
+//            // set the wrist to be parallel to ground or parallel to high chamber or wall
+//            if(gamepad2.right_bumper){
+//                if(parallelToggle) {
+//                    if(parallelOnce) {
+//                        parallelOffset = 0.5672;
+//                        multiplier = 1;
+//                    }
+//                    else{
+//                        parallelOffset = 0.497;
+//                        multiplier = 0;
+//                    }
+//                    parallelOnce = !parallelOnce;
+//                    parallelToggle = false;
+//                }
+//            } else parallelToggle = true;
+//
+//            if(gamepad2.y){
+//                clawPos = 0;
+//                clawOnce = false;
+//                clawToggle = false;
+//                parallelOnce = false;
+//                parallelOffset = 0.5178;
+//                multiplier = 1;
+//                targetAx = 100;
+//            }
+//
+//            if(gamepad2.x){
+//                clawPos = 0.15;
+//                parallelOnce = true;
+//                parallelOffset = 0.497;
+//                multiplier = 0;
+//                targetAx = 450;
+//                clawOnce = true;
+//                clawToggle = false;
+//            }
+//
+//            brat.setWristParalel(parallelOffset, multiplier);
+//
+//            // toggle the claw from closed to open
+//            if(gamepad2.a){
+//                if(!clawToggle){
+//                    if(clawOnce) clawPos = 0;
+//                    else clawPos = 0.15;
+//
+//                    clawOnce = !clawOnce;
+//                    clawToggle = true;
+//                }
+//            } else clawToggle = false;
+//
+//            brat.setClaw(clawPos);
+//
+//
             if(gamepad2.left_stick_y < 0 && targetAx < 900) targetAx += 20;
             if(gamepad2.left_stick_y > 0 && targetAx > 0) targetAx -= 20;
             if(gamepad2.right_stick_y < 0 && targetSlider < 2100) targetSlider += 40;
@@ -136,7 +147,7 @@ public class NatioTeleOp extends LinearOpMode {
             isRotating = brat.setAxPoz(targetAx);
             isSliding = brat.setSliderPoz(targetSlider);
 
-            brat.callTelemetry();
+//            brat.callTelemetry();
             telemetry.update();
         }
     }
