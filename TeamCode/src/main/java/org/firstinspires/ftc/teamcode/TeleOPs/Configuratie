@@ -1,0 +1,13 @@
+MOTORS                                      SERVOS
+
+WHEELS
+
+rightFront - control1
+rightBack - expansion3
+leftFront - control0
+leftBack - expansion2
+
+OTHERS
+
+intake - expansion0
+plate - expansion1
