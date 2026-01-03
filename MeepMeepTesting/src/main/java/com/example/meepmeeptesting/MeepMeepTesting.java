@@ -16,7 +16,15 @@ public class MeepMeepTesting {
 
         RoadRunnerBotEntity SplineUp = new DefaultBotBuilder(meepMeep)
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(Test)
-                        .splineToConstantHeading(new Vector2d(0, 40),Math.toRadians(90))
+                        .setTangent(Math.toRadians(160))
+                        .splineToSplineHeading(new Pose2d(-59, -56, Math.toRadians(45)), Math.toRadians(180))
+                        .waitSeconds(5.1)
+                        .setTangent(Math.toRadians(45))
+                        .splineToSplineHeading(new Pose2d(-55, -10, Math.toRadians(90)), Math.toRadians(180))
+                        .splineToConstantHeading(new Vector2d(-56.5, -10), Math.toRadians(180))
+                        .resetVelConstraint()
+                        .splineToConstantHeading(new Vector2d(-56.5, -58), Math.toRadians(270))
+                        .waitSeconds(200)
                         .build());
 
         RoadRunnerBotEntity SplineDown = new DefaultBotBuilder(meepMeep)
@@ -29,7 +37,7 @@ public class MeepMeepTesting {
                 .setBackgroundAlpha(0.95f)
 
                                 .addEntity(SplineUp)
-                                .addEntity(SplineDown)
+//                                .addEntity(SplineDown)
                 .start();
     }
 }

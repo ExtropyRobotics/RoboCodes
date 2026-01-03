@@ -1,13 +1,27 @@
-MOTORS                                      SERVOS
+Control Hub                                      Expansion Hub
 
-WHEELS
+Motors                                           Motors
+control0 - leftFront - frontDeadWheel(?)         expansion0 - intake
+control1 - rightFront - leftDeadWheel(?)         expansion1 -
+control2 2 plate                                 expansion2 - leftBack - rightDeadWheel
+control3 - shooter                               expansion3 - rightBack
 
-rightFront - control1
-rightBack - expansion3
-leftFront - control0
-leftBack - expansion2
+Servos                                           Servos
+control0 -                                       expansion0 -
+control1 -                                       expansion1 -
+control2 -                                       expansion2 -
+control3 -                                       expansion3 -
+control4 -                                       expansion4 -
+control5 -                                       expansion5 - lift
 
-OTHERS
+I2C                                              I2C
+Bus0 - imu                                       Bus0 -
+Bus1 -                                           Bus1 - color (port0)
+Bus2 -                                           Bus2 - distance (port1)
+Bus3 -                                           Bus3 -
 
-intake - expansion0
-plate - expansion1
+
+
+Servo Positions:
+Up - 0.8
+Down - 0.47
