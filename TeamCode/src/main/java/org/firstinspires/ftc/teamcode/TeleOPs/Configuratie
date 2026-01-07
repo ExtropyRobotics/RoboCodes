@@ -1,8 +1,8 @@
 Control Hub                                      Expansion Hub
 
 Motors                                           Motors
-control0 - leftFront - frontDeadWheel(?)         expansion0 - intake
-control1 - rightFront - leftDeadWheel(?)         expansion1 -
+control0 - leftFront - frontDeadWheel            expansion0 - intake
+control1 - rightFront - leftDeadWheel            expansion1 -
 control2 2 plate                                 expansion2 - leftBack - rightDeadWheel
 control3 - shooter                               expansion3 - rightBack
 
@@ -11,7 +11,7 @@ control0 -                                       expansion0 -
 control1 -                                       expansion1 -
 control2 -                                       expansion2 -
 control3 -                                       expansion3 -
-control4 -                                       expansion4 -
+control4 -                                       expansion4 - camera
 control5 -                                       expansion5 - lift
 
 I2C                                              I2C
@@ -23,5 +23,9 @@ Bus3 -                                           Bus3 -
 
 
 Servo Positions:
-Up - 0.8
-Down - 0.47
+
+Arm                         Camera                      Shooting
+Up - 0.8                    BlueLeft - 1                Open - 0.37
+Down - 0.46                 BlueRight - 0.76            Closed - 0.5
+                            RedLeft -
+                            RedRight -
