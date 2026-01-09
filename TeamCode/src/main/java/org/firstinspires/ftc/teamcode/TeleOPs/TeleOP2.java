@@ -53,7 +53,8 @@ public class  TeleOP2 extends LinearOpMode{
     public enum Intake_Sensor {
         EMPTY,
         ROTATE,
-        OUTAKE
+        OUTAKE,
+        FORCED_OUTTAKE
 
     }
 
@@ -68,6 +69,9 @@ public class  TeleOP2 extends LinearOpMode{
     boolean forcedEmpty = false;
     boolean forcedEmptyOnce = false;
     boolean ballShot = false;
+    boolean gamepad2xToggle = false;
+    int desiredPlatePoz = 0;
+    boolean plateMoveForced = false;
 
     Intake_Sensor state = Intake_Sensor.EMPTY;
 
@@ -137,7 +141,7 @@ public class  TeleOP2 extends LinearOpMode{
                     if(!forcedEmptyOnce) intake.setPower(1);
                     servoShoot.setPosition(0.64);
                     if(ballsCollected == -1){
-                        plateTarget = 0;
+                        plateTarget = desiredPlatePoz;
                     }
                     if(distance < 45 && !full && plateTarget < plate.getCurrentPosition() + 5 && plateTarget > plate.getCurrentPosition() - 5 && !forcedEmptyOnce){
 
@@ -238,7 +242,59 @@ public class  TeleOP2 extends LinearOpMode{
                     }
 
                     break;
+                case FORCED_OUTTAKE:
+                    intake.setPower(0);
+                    servoOpen = false;
+                    shooter.setVelocity(1050);
+
+                    if(shooter.getVelocity() > 1000){
+                        shooterReeady = true;
+                    }
+
+                    if(plate.getCurrentPosition() > plateTarget - 10 && plate.getCurrentPosition() < plateTarget + 10){
+                        servoShoot.setPosition(0.47);
+                        servoOpen = true;
+                    }
+                    if(servoOpen && shooterReeady && encoderPoz < 0.7 && !liftUp && stopperPoz < 0.375 && plate.getCurrentPosition() > plateTarget - 5 && plate.getCurrentPosition() < plateTarget + 5){
+                        lift.setPosition(0.8);
+                        liftUp = true;
+                    }
+
+                    if(encoderPoz > 0.7 && shooterReeady && !shot){
+                        lift.setPosition(0.46);
+                        shot = true;
+                    }
+
+                    if(shooterReeady && shooter.getVelocity() < 1000 && !ballShot && shot){
+                        ballsCollected -= 1;
+                        storage[i].pos = 0;
+                        storage[i].color = 0;
+                        ballShot = true;
+                    }
+
+                    if(encoderPoz < 0.5 && liftUp && shot) {
+                        liftUp = false;
+                        shooterReeady = false;
+                        shootFound = false;
+                        shot = false;
+                        ballShot = false;
+                        motor_stop.reset();
+                        state = Intake_Sensor.EMPTY;
+                    }
             }
+
+            if(gamepad2.dpad_right && !dpadRightToggle){
+                dpadRightToggle = true;
+                desiredPlatePoz += 178;
+                if(desiredPlatePoz > 500) desiredPlatePoz = 0;
+            } else dpadRightToggle = false;
+
+            if(gamepad2.dpad_left && !dpadLeftToggle){
+                dpadLeftToggle = true;
+                desiredPlatePoz -= 178;
+                if(desiredPlatePoz < 0) desiredPlatePoz = 178*2;
+            } else dpadLeftToggle = false;
+
 
             if(i == -1) i = 2;
             if(i == 3) i = 0;
@@ -263,10 +319,26 @@ public class  TeleOP2 extends LinearOpMode{
                 }
             } else leftBumperToggle = false;
 
+            if(gamepad2.x){
+                if(!gamepad2xToggle)
+                {
+                    forcedEmptyOnce = true;
+                    state = Intake_Sensor.FORCED_OUTTAKE;
+                    gamepad2xToggle = true;
+                }
+            } else gamepad2xToggle = false;
+
             if(gamepad2.a && !forcedEmpty){
                 forcedEmptyOnce = false;
                 state = Intake_Sensor.EMPTY;
                 forcedEmpty = true;
+                storage[0].pos = 0;
+                storage[1].pos = 0;
+                storage[2].pos = 0;
+                storage[0].color = 0;
+                storage[1].color = 0;
+                storage[2].color = 0;
+                ballsCollected = -1;
             } else forcedEmpty = false;
 
 //            if(gamepad2.dpad_right && !dpadRightToggle){
