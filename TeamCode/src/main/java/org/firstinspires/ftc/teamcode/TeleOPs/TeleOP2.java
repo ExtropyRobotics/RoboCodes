@@ -65,6 +65,8 @@ public class  TeleOP2 extends LinearOpMode{
     boolean servoFail = false;
     boolean dpadRightToggle = false;
     boolean dpadLeftToggle = false;
+    boolean forcedEmpty = false;
+    boolean forcedEmptyOnce = false;
     boolean ballShot = false;
 
     Intake_Sensor state = Intake_Sensor.EMPTY;
@@ -127,15 +129,17 @@ public class  TeleOP2 extends LinearOpMode{
 
             full = ballsCollected == 2;
 
+            if(full) intake.setPower(0);
+
             switch(state){
                 case EMPTY:
                     lift.setPosition(0.46);
-                    intake.setPower(1);
+                    if(!forcedEmptyOnce) intake.setPower(1);
                     servoShoot.setPosition(0.64);
                     if(ballsCollected == -1){
                         plateTarget = 0;
                     }
-                    if(distance < 40 && !full && plateTarget < plate.getCurrentPosition() + 5 && plateTarget > plate.getCurrentPosition() - 5){
+                    if(distance < 45 && !full && plateTarget < plate.getCurrentPosition() + 5 && plateTarget > plate.getCurrentPosition() - 5 && !forcedEmptyOnce){
 
                         if(!ballTaken) {
                             ballsCollected += 1;
@@ -146,7 +150,7 @@ public class  TeleOP2 extends LinearOpMode{
 
                         if(ballsCollected > 2) ballsCollected = 2;
                     }
-                    if(motor_stop.seconds() >= 5){
+                    if(motor_stop.seconds() >= 10){
                         shooter.setPower(0);
                     }
                     break;
@@ -171,12 +175,14 @@ public class  TeleOP2 extends LinearOpMode{
 
                         storage[ballsCollected].pos = plate.getCurrentPosition();
                         if(hue > 100) storage[ballsCollected].color = 2;
-                        if(hue < 100 && hue > 25) storage[ballsCollected].color = 1;
+                        if(hue < 100) storage[ballsCollected].color = 1;
 
+                    if(intake_sensor_timer. seconds() > 0.1){
                         plateTarget += 178;
                         state = Intake_Sensor.EMPTY;
+                    }
 
-                    if(motor_stop.seconds() >= 5){
+                    if(motor_stop.seconds() >= 10){
                         shooter.setPower(0);
                     }
 
@@ -240,6 +246,7 @@ public class  TeleOP2 extends LinearOpMode{
             if(gamepad2.right_bumper && ballsCollected > -1){
                 if(!rightBumperToggle)
                 {
+                    forcedEmptyOnce = true;
                     state = Intake_Sensor.OUTAKE;
                     toShoot = 2;
                     rightBumperToggle = true;
@@ -249,11 +256,18 @@ public class  TeleOP2 extends LinearOpMode{
             if(gamepad2.left_bumper && ballsCollected > -1){
                 if(!leftBumperToggle)
                 {
+                    forcedEmptyOnce = true;
                     state = Intake_Sensor.OUTAKE;
                     toShoot = 1;
                     leftBumperToggle = true;
                 }
             } else leftBumperToggle = false;
+
+            if(gamepad2.a && !forcedEmpty){
+                forcedEmptyOnce = false;
+                state = Intake_Sensor.EMPTY;
+                forcedEmpty = true;
+            } else forcedEmpty = false;
 
 //            if(gamepad2.dpad_right && !dpadRightToggle){
 //                i++;
