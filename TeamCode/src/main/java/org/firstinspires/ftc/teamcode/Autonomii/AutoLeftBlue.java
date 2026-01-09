@@ -25,10 +25,10 @@ import java.util.List;
 @Autonomous (name = "!AutoLeftBlue")
 
 public class AutoLeftBlue extends LinearOpMode {
-    public void movePlateID(int plateTarget){
+    public void movePlateID(int plateTarget, double power){
         plate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         plate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        plate.setPower(0.2);
+        plate.setPower(power);
         plate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         plate.setTargetPosition(plateTarget);
         plate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -115,11 +115,18 @@ public class AutoLeftBlue extends LinearOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(0, ()->{
                     thread.start();
                     camera.setPosition(1);
-                    servoShoot.setPosition(servoShootOpen);
                     shooter.setVelocity(motorRPM);
+                    servoShoot.setPosition(servoShootClose);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(0.5, ()->{
+                    if(aprilTagID == 22) movePlateID(rotatePlate*2, 0.5);
+                    if(aprilTagID == 23) movePlateID(rotatePlate, 0.5);
                 })
                 .setTangent(Math.toRadians(45))
                 .splineToConstantHeading(new Vector2d(-18,-8),Math.toRadians(45))
+                .UNSTABLE_addTemporalMarkerOffset(0.4, ()->{
+                    servoShoot.setPosition(servoShootOpen);
+                })
                 .UNSTABLE_addTemporalMarkerOffset(1.1, ()->{
                     lift.setPosition(liftUp);
                 })
@@ -163,8 +170,8 @@ public class AutoLeftBlue extends LinearOpMode {
                 .splineToConstantHeading(new Vector2d(-8, -51), Math.toRadians(-90))
                 .resetVelConstraint()
                 .UNSTABLE_addTemporalMarkerOffset(0, ()->{
-                    if(aprilTagID == 21) movePlateID(rotatePlate);
-                    if(aprilTagID == 23) movePlateID(rotatePlate*2);
+                    if(aprilTagID == 21) movePlateID(rotatePlate, 0.2);
+                    if(aprilTagID == 23) movePlateID(rotatePlate*2, 0.2);
                     shooter.setVelocity(motorRPM);
                 })
                 .setTangent(Math.toRadians(90))
@@ -218,39 +225,39 @@ public class AutoLeftBlue extends LinearOpMode {
                 .splineToConstantHeading(new Vector2d(20, -59), Math.toRadians(-90))
                 .resetVelConstraint()
                 .UNSTABLE_addTemporalMarkerOffset(0, ()->{
-                    if(aprilTagID == 22) movePlateID((rotatePlate)*2);
-                    if(aprilTagID == 23) movePlateID(rotatePlate);
+                    if(aprilTagID == 22) movePlateID((rotatePlate)*2, 0.2);
+                    if(aprilTagID == 23) movePlateID(rotatePlate, 0.2);
                 })
                 .setTangent(Math.toRadians(90))
                 .splineToSplineHeading(new Pose2d(-20, -8, Math.toRadians(-125)), Math.toRadians(180))
-                .UNSTABLE_addTemporalMarkerOffset(0.6, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(1, ()->{
                     servoShoot.setPosition(servoShootOpen);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(1, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(1.4, ()->{
                     intake.setPower(0);
                     lift.setPosition(liftUp);
                     shooter.setVelocity(1075);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(1.5, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(1.9, ()->{
                     lift.setPosition(liftDown);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(1.7, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(2.1, ()->{
                     movePlate(rotatePlate);
                     shooter.setVelocity(motorRPM);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(2.8, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(2.5, ()->{
                     lift.setPosition(liftUp);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(3.2, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(3.6, ()->{
                     lift.setPosition(liftDown);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(3.4, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(3.8, ()->{
                     movePlate(rotatePlate);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(4.5, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(4.9, ()->{
                     lift.setPosition(liftUp);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(4.9, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(5.3, ()->{
                     lift.setPosition(liftDown);
                     shooter.setVelocity(0);
                 })

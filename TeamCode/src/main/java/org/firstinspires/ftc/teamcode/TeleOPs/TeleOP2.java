@@ -30,12 +30,10 @@ public class  TeleOP2 extends LinearOpMode{
 
     Ball[] storage = {new Ball(), new Ball(), new Ball()};
 
-    double timer = 1;
     int plateTarget = 0;
     int ballsCollected = -1;
     boolean ballTaken = false;
     boolean full = false;
-    boolean slowShoot = false;
     int toShoot = 0;
     double avgColor;
     double hue = 0;
@@ -48,10 +46,8 @@ public class  TeleOP2 extends LinearOpMode{
 
     boolean shooterReeady = false;
     boolean shot = false;
-
-
-
     boolean liftUp = false;
+    int i = 2;
 
 
     public enum Intake_Sensor {
@@ -63,24 +59,18 @@ public class  TeleOP2 extends LinearOpMode{
 
     SampleMecanumDrive drive;
     ElapsedTime intake_sensor_timer = new ElapsedTime();
-    ElapsedTime motor_speed = new ElapsedTime();
     ElapsedTime motor_stop = new ElapsedTime();
-    ElapsedTime servo_wait = new ElapsedTime();
-    boolean resetOnce = false;
     boolean shootFound = false;
-    boolean shootHold = false;
-    boolean servoUp = false;
-    boolean servoDown = false;
-    boolean servoMove = false;
-    boolean motorSpeedResetToggle = false;
-    boolean outtakeReady = false;
-    boolean outtakeSwitch = false;
     boolean rotateToggle = false;
-    boolean intakeToggle = false;
-    boolean intakeOnce = false;
+    boolean servoFail = false;
+    boolean dpadRightToggle = false;
+    boolean dpadLeftToggle = false;
+    boolean ballShot = false;
+
     Intake_Sensor state = Intake_Sensor.EMPTY;
 
     AnalogInput encoderServo;
+    AnalogInput encoderStopper;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -100,30 +90,33 @@ public class  TeleOP2 extends LinearOpMode{
         test_color = hardwareMap.get(NormalizedColorSensor.class, "color");
 
         encoderServo = hardwareMap.get(AnalogInput.class, "axon_encoder");
+        encoderStopper = hardwareMap.get(AnalogInput.class, "stopper_encoder");
 
         double encoderPoz = 1-encoderServo.getVoltage()/3.3;
+        double stopperPoz = 1-encoderStopper.getVoltage()/3.3;
+        double servoSpeed = 1-encoderServo.getVoltage()/3.3 - encoderPoz;
 
         plate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         plate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        plate.setPower(1);
+        plate.setPower(0.7);
         plate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         plate.setTargetPosition(plateTarget);
         plate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        double distance = distanceSensor.getDistance(DistanceUnit.CM);
+        double distance = distanceSensor.getDistance(DistanceUnit.MM);
 
         NormalizedRGBA colors = test_color.getNormalizedColors();
 
         waitForStart();
 
         intake_sensor_timer.reset();
-        motor_speed.reset();
         motor_stop.reset();
-        servo_wait.reset();
 
         while (opModeIsActive() && !isStopRequested()) {
             encoderPoz = 1-encoderServo.getVoltage()/3.3;
-            distance = distanceSensor.getDistance(DistanceUnit.CM);
+            stopperPoz = 1-encoderStopper.getVoltage()/3.3;
+            servoSpeed = 1-encoderServo.getVoltage()/3.3 - encoderPoz;
+            distance = distanceSensor.getDistance(DistanceUnit.MM);
             plate.setTargetPosition(plateTarget);
 
             drive.setWeightedDrivePower(new Pose2d(
@@ -132,14 +125,17 @@ public class  TeleOP2 extends LinearOpMode{
                     -gamepad1.right_stick_x
             ));
 
-            switch(state){
+            full = ballsCollected == 2;
 
+            switch(state){
                 case EMPTY:
-                    servoShoot.setPosition(0.5);
-                    if(ballsCollected == -1 && !rotateToggle){
+                    lift.setPosition(0.46);
+                    intake.setPower(1);
+                    servoShoot.setPosition(0.64);
+                    if(ballsCollected == -1){
                         plateTarget = 0;
                     }
-                    if(distance < 15 && !full){
+                    if(distance < 40 && !full && plateTarget < plate.getCurrentPosition() + 5 && plateTarget > plate.getCurrentPosition() - 5){
 
                         if(!ballTaken) {
                             ballsCollected += 1;
@@ -150,13 +146,11 @@ public class  TeleOP2 extends LinearOpMode{
 
                         if(ballsCollected > 2) ballsCollected = 2;
                     }
-                    if(shootHold && motor_stop.seconds() >= 13){
+                    if(motor_stop.seconds() >= 5){
                         shooter.setPower(0);
-                        shootHold = false;
                     }
                     break;
                 case ROTATE:
-                    if(intake_sensor_timer.seconds() <= 0.5){
                         colors = test_color.getNormalizedColors();
 
                         double max = Math.max(colors.red, colors.blue);
@@ -176,22 +170,19 @@ public class  TeleOP2 extends LinearOpMode{
                         if(hue < 0) hue += 360;
 
                         storage[ballsCollected].pos = plate.getCurrentPosition();
-                        if(hue > 250) storage[ballsCollected].color = 2;
-                        if(hue < 250) storage[ballsCollected].color = 1;
+                        if(hue > 100) storage[ballsCollected].color = 2;
+                        if(hue < 100 && hue > 25) storage[ballsCollected].color = 1;
 
-
-                    }
-                    if(intake_sensor_timer.seconds() > 0.5){
+                        plateTarget += 178;
                         state = Intake_Sensor.EMPTY;
-                        plateTarget += 179;
-                    }
-                    if(shootHold && motor_stop.seconds() >= 13){
+
+                    if(motor_stop.seconds() >= 5){
                         shooter.setPower(0);
-                        shootHold = false;
                     }
 
                     break;
                 case OUTAKE:
+                    intake.setPower(0);
                     boolean servoOpen = false;
                     shooter.setVelocity(1050);
 
@@ -200,137 +191,96 @@ public class  TeleOP2 extends LinearOpMode{
                     }
 
                     if(!shootFound){
-                        for(int i = 2; i >= 0 && !shootFound; i--){
+                        for(i = 2; i >= 0; i--){
                             if(storage[i].color == toShoot){
-                                plateTarget = storage[i].pos + 179 + 20;
-                                storage[i].pos = 0;
-                                storage[i].color = 0;
+                                plateTarget = storage[i].pos + 178;
                                 shootFound = true;
+                                break;
                             }
                         }
                     }
 
                     if(shootFound && plate.getCurrentPosition() > plateTarget - 10 && plate.getCurrentPosition() < plateTarget + 10){
-                        servoShoot.setPosition(0.37);
+                        servoShoot.setPosition(0.47);
                         servoOpen = true;
-                    }
-                    if(servoOpen && shooterReeady && encoderPoz < 0.7 && !liftUp){
+                     }
+                    if(servoOpen && shooterReeady && encoderPoz < 0.7 && !liftUp && stopperPoz < 0.375 && plate.getCurrentPosition() > plateTarget - 5 && plate.getCurrentPosition() < plateTarget + 5){
                         lift.setPosition(0.8);
                         liftUp = true;
                     }
+
                     if(encoderPoz > 0.7 && shooterReeady && !shot){
                         lift.setPosition(0.46);
                         shot = true;
                     }
-                    if(encoderPoz < 0.5 && liftUp && shot){
-                        state = Intake_Sensor.EMPTY;
+
+                    if(shooterReeady && shooter.getVelocity() < 1000 && !ballShot && shot){
+                        ballsCollected -= 1;
+                        storage[i].pos = 0;
+                        storage[i].color = 0;
+                        ballShot = true;
+                    }
+
+                    if(encoderPoz < 0.5 && liftUp && shot) {
                         liftUp = false;
                         shooterReeady = false;
                         shootFound = false;
                         shot = false;
+                        ballShot = false;
+                        motor_stop.reset();
+                        state = Intake_Sensor.EMPTY;
                     }
 
-
-
-
-//                    boolean plateReady = false;
-//                    if(!motorSpeedResetToggle){
-//                    motorSpeedResetToggle = true;
-//                    motor_speed.reset();
-//                    }
-//                    shooter.setVelocity(1000);
-//                    intake.setPower(0);
-//                    if(intake_sensor_timer.seconds() < timer && !shootFound){
-//                        for(int i = 2; i >= 0 && !shootFound; i--){
-//                            if(storage[i].color == toShoot){
-//                                plateTarget = storage[i].pos + 179 + 20;
-//                                storage[i].pos = 0;
-//                                storage[i].color = 0;
-//                                shootFound = true;
-//                            }
-//                        }
-//                    }
-//
-//                    if(plate.getCurrentPosition() > plateTarget - 10 && plate.getCurrentPosition() < plateTarget + 10){
-//                        servoShoot.setPosition(0.37);
-//                        plateReady = true;
-//                    }
-//
-//                    if(!resetOnce && shooter.getVelocity() >= 1000){
-//                        resetOnce = true;
-//                        slowShoot = true;
-//                        servoMove = true;
-//                    }
-//                    if(servoMove && shooter.getVelocity() >= 1000 && motor_speed.seconds() >= 2 && !servoUp && plateReady){
-//                        lift.setPosition(0.8);
-//                        servoUp = true;
-//                        motor_speed.reset();
-//                        servoMove = false;
-//                        resetOnce = true;
-//                        outtakeSwitch = true;
-//                    }
-//                    if(shooter.getVelocity() < 1000 && slowShoot){
-//                        ballsCollected -= 1;
-//                        lift.setPosition(0.46);
-//                        slowShoot = false;
-//                    }
-//                    if(motor_speed.seconds() >= 0.5 && resetOnce && !servoDown){
-//                        shootHold = true;
-//                        outtakeReady = true;
-//                        servoDown = true;
-//                    }
-//                    if(motor_speed.seconds() >= 1.5 && resetOnce && outtakeReady && outtakeSwitch && encoderPoz < 0.5){
-//                        shootFound = false;
-//                        resetOnce = false;
-//                        outtakeReady = false;
-//                        motorSpeedResetToggle = false;
-//                        outtakeSwitch = false;
-//                        slowShoot = false;
-//                        servoDown = false;
-//                        servoUp = false;
-//                        intake_sensor = Intake_Sensor.EMPTY;
-//                    }
                     break;
             }
 
-            if(ballsCollected == 2) intake.setPower(0);
+            if(i == -1) i = 2;
+            if(i == 3) i = 0;
 
-            if(gamepad2.right_bumper){
+            if(gamepad2.right_bumper && ballsCollected > -1){
                 if(!rightBumperToggle)
                 {
-                    intake_sensor_timer.reset();
                     state = Intake_Sensor.OUTAKE;
                     toShoot = 2;
                     rightBumperToggle = true;
                 }
             } else rightBumperToggle = false;
 
-            if(gamepad2.left_bumper){
+            if(gamepad2.left_bumper && ballsCollected > -1){
                 if(!leftBumperToggle)
                 {
-                    intake_sensor_timer.reset();
                     state = Intake_Sensor.OUTAKE;
                     toShoot = 1;
                     leftBumperToggle = true;
                 }
             } else leftBumperToggle = false;
 
-            if(ballsCollected == -2) ballsCollected = -1;
+//            if(gamepad2.dpad_right && !dpadRightToggle){
+//                i++;
+//                if(i > 2) i = 0;
+//                storage[i].color = 0;
+//                plateTarget = storage[i].pos;
+//                dpadRightToggle = true;
+//            } else dpadRightToggle = false;
+//
+//            if(gamepad2.dpad_left && !dpadLeftToggle){
+//                i--;
+//                if(i < 0) i = 2;
+//                storage[i].color = 0;
+//                plateTarget = storage[i].pos;
+//                dpadLeftToggle = true;
+//            } else dpadLeftToggle = false;
 
-            if(gamepad2.dpad_up && !rotateToggle){
-                plateTarget = 179;
-                rotateToggle = true;
-            } else rotateToggle = false;
+            if(gamepad2.y && !servoFail){
+                state = Intake_Sensor.EMPTY;
+                liftUp = false;
+                shooterReeady = false;
+                shootFound = false;
+                shot = false;
+                servoFail = true;
+            } else servoFail = false;
 
-            if(gamepad2.y){
-                if(!intakeToggle){
-                    if(intakeOnce) intake.setPower(0);
-                    else intake.setPower(1);
-
-                    intakeOnce = !intakeOnce;
-                    intakeToggle = true;
-                }
-            } else intakeToggle = false;
+            if(ballsCollected < -1) ballsCollected = -1;
 
             plate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -358,7 +308,6 @@ public class  TeleOP2 extends LinearOpMode{
             telemetry.addData("State: ", state);
             telemetry.addData("Motor Speed: ", shooter.getVelocity());
             telemetry.addData("toShoot: ", toShoot);
-            telemetry.addData("motorspeed", motor_speed.seconds());
             telemetry.addData("motorstop:", motor_stop.seconds());
             telemetry.addData("timer: ", intake_sensor_timer.seconds());
             telemetry.addData("Ball:", storage[0].color);
@@ -371,12 +320,14 @@ public class  TeleOP2 extends LinearOpMode{
             telemetry.addData("full:", full);
             telemetry.addData("balltaken :", ballTaken);
             telemetry.addData("====================:", "");
-            telemetry.addData("Distance: ", distanceSensor.getDistance(DistanceUnit.CM));
+            telemetry.addData("Distance: ", distanceSensor.getDistance(DistanceUnit.MM));
             telemetry.addData("hue: ", hue);
             telemetry.addData("avgcolor:", avgColor);
             telemetry.addData("BallsCollected:", ballsCollected);
             telemetry.addData("plateTarget:", plateTarget);
             telemetry.addData("axonencoder:", encoderPoz);
+            telemetry.addData("shooterencoder:", stopperPoz);
+            telemetry.addData("servoSpeed", servoSpeed);
 
             telemetry.update();
         }

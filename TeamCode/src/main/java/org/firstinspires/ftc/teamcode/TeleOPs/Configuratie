@@ -25,7 +25,7 @@ Bus3 -                                           Bus3 -
 Servo Positions:
 
 Arm                         Camera                      Shooting
-Up - 0.8                    BlueLeft - 1                Open - 0.37
-Down - 0.46                 BlueRight - 0.76            Closed - 0.5
+Up - 0.8                    BlueLeft - 1                Open - 0.47
+Down - 0.46                 BlueRight - 0.76            Closed - 0.64
                             RedLeft -
                             RedRight -
