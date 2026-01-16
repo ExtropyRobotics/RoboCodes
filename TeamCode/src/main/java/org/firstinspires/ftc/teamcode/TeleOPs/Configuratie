@@ -9,8 +9,8 @@ control3 - shooter                               expansion3 - rightBack
 Servos                                           Servos
 control0 - stopper                               expansion0 -
 control1 -                                       expansion1 -
-control2 -                                       expansion2 -
-control3 -                                       expansion3 -
+control2 - leftPlateAdjuster                     expansion2 -
+control3 -                                       expansion3 - rightPlateAdjuster
 control4 -                                       expansion4 - camera
 control5 -                                       expansion5 - lift
 
@@ -21,12 +21,17 @@ Bus2 -                                           Bus2 - distance (port1)
 Bus3 -                                           Bus3 -
 
 Analog
-control0 - encoder_stopper
-expansion0 - axon_encoder
+control0 - stopper_encoder
+expansion0 - lift_encoder
 
 Servo Positions:
 Arm:                        Camera:                     Shooting:
-Up - 0.8                    BlueLeft - 1                Open - 0.47
+Up - 0.8                    BlueLeft - 0.45             Open - 0.47
 Down - 0.46                 BlueRight - 0.76            Closed - 0.64
-                            RedLeft -
+                            RedLeft - 1
                             RedRight -
+
+Plate positioners:
+Closed                      Open
+Front - 0.8729              Front - 0.8007
+Back - 0.5229               Back - 0.1993

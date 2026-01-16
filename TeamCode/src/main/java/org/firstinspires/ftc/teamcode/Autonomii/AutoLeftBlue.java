@@ -36,7 +36,7 @@ public class AutoLeftBlue extends LinearOpMode {
     public void movePlate(int plateTarget){
         plate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         plate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        plate.setPower(0.45);
+        plate.setPower(1);
         plate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         plate.setTargetPosition(plateTarget);
         plate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -45,7 +45,7 @@ public class AutoLeftBlue extends LinearOpMode {
     public void movePlateGather(int plateTarget){
         plate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         plate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        plate.setPower(0.3);
+        plate.setPower(1);
         plate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         plate.setTargetPosition(plateTarget);
         plate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -66,6 +66,8 @@ public class AutoLeftBlue extends LinearOpMode {
     Limelight3A limelight;
     LLResult llResult;
     int aprilTagID = 0;
+    Servo frontPlateServo;
+    Servo backPlateServo;
     boolean firstAprilTag = false;
     NormalizedColorSensor colorSensor;
     DistanceSensor distanceSensor;
@@ -75,6 +77,12 @@ public class AutoLeftBlue extends LinearOpMode {
         @Override
         public void run() {
 
+            while(opModeInInit() && !isStopRequested()){
+                frontPlateServo.setPosition(0.5229);
+                backPlateServo.setPosition(0.8729);
+                servoShoot.setPosition(servoShootClose);
+                plate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            }
 
             while (opModeIsActive() && !isStopRequested()) {
                 llResult = limelight.getLatestResult();
@@ -87,12 +95,7 @@ public class AutoLeftBlue extends LinearOpMode {
                         aprilTagID = fr.getFiducialId();
                         telemetry.update();
                     }
-                    if (aprilTagID == 22 && !firstAprilTag) movePlateID(rotatePlate * 2, 0.2);
-                    if (aprilTagID == 23 && !firstAprilTag) movePlateID(rotatePlate, 0.2);
-
-                    camera.setPosition(1);
-
-
+                    camera.setPosition(0.45);
                 }
             }
         }
@@ -115,30 +118,39 @@ public class AutoLeftBlue extends LinearOpMode {
         camera = hardwareMap.get(Servo.class, "servo_camera");
         servoShoot = hardwareMap.get(Servo.class, "servo_shoot");
 
+        frontPlateServo = hardwareMap.get(Servo.class, "rightPlateAdjuster");
+        backPlateServo = hardwareMap.get(Servo.class, "leftPlateAdjuster");
+
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         distanceSensor = hardwareMap.get(DistanceSensor.class, "distance");
         colorSensor = hardwareMap.get(NormalizedColorSensor.class, "color");
 
         TrajectorySequence DecodeAuto= drive.trajectorySequenceBuilder(startingPose)
                 .UNSTABLE_addTemporalMarkerOffset(0, ()->{
-                    thread.start();
-                    camera.setPosition(1);
+                    camera.setPosition(0.45);
                     shooter.setVelocity(motorRPM);
-                    servoShoot.setPosition(servoShootClose);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(0.3, ()->{
+                    frontPlateServo.setPosition(0.8007);
+                    backPlateServo.setPosition(0.1993);
                 })
                 .setTangent(Math.toRadians(45))
                 .splineToConstantHeading(new Vector2d(-18,-8),Math.toRadians(45))
+                .UNSTABLE_addTemporalMarkerOffset(-0.1, ()->{
+                    if (aprilTagID == 22) movePlateID(rotatePlate * 2, 1);
+                    if (aprilTagID == 23) movePlateID(rotatePlate, 1);
+                })
                 .UNSTABLE_addTemporalMarkerOffset(0.4, ()->{
                     firstAprilTag = true;
                     servoShoot.setPosition(servoShootOpen);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(1.1, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(1, ()->{
                     lift.setPosition(liftUp);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(1.6, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(2, ()->{
                     lift.setPosition(liftDown);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(1.8, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(2.2, ()->{
                     movePlate(rotatePlate);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(2.9, ()->{
@@ -148,7 +160,7 @@ public class AutoLeftBlue extends LinearOpMode {
                     lift.setPosition(liftDown);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(3.5, ()->{
-                    movePlate(rotatePlate);
+                    movePlate(rotatePlate - 2);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(4.6, ()->{
                     lift.setPosition(liftUp);
@@ -160,6 +172,7 @@ public class AutoLeftBlue extends LinearOpMode {
                 })
                 .UNSTABLE_addTemporalMarkerOffset(5.5, ()->{
                     servoShoot.setPosition(servoShootClose);
+                    rotatePlate = 179;
                 })
                 .waitSeconds(5)
                 .setTangent(Math.toRadians(0))
@@ -169,14 +182,14 @@ public class AutoLeftBlue extends LinearOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(0, ()->{
                     movePlateGather(rotatePlate);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(0.5, ()->{
-                    movePlateGather(rotatePlate + 3);
+                .UNSTABLE_addTemporalMarkerOffset(0.3, ()->{
+                    movePlateGather(rotatePlate + 22);
                 })
-                .splineToConstantHeading(new Vector2d(-10, -51), Math.toRadians(-90))
+                .splineToConstantHeading(new Vector2d(-10, -48), Math.toRadians(-90))
                 .resetVelConstraint()
                 .UNSTABLE_addTemporalMarkerOffset(-0.2, ()->{
-                    if(aprilTagID == 21) movePlateID(rotatePlate, 0.2);
-                    if(aprilTagID == 23) movePlateID(rotatePlate*2, 0.2);
+                    if(aprilTagID == 21) movePlateID(rotatePlate, 1);
+                    if(aprilTagID == 23) movePlateID(rotatePlate*2, 1);
                     shooter.setVelocity(motorRPM);
                 })
                 .setTangent(Math.toRadians(90))
@@ -216,22 +229,22 @@ public class AutoLeftBlue extends LinearOpMode {
                 })
                 .waitSeconds(4.6)
                 .setTangent(0)
-                .splineToSplineHeading(new Pose2d(5, -18, Math.toRadians(-90)), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(12, -18), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(16, -23), Math.toRadians(-90))
+                .splineToSplineHeading(new Pose2d(5, -14, Math.toRadians(-110)), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(12, -14), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(17.4, -23), Math.toRadians(-90))
                 .setVelConstraint(new TranslationalVelocityConstraint(17))
-                .UNSTABLE_addTemporalMarkerOffset(0.3, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(0.2, ()->{
                     movePlateGather(rotatePlate);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(0.8, ()->{
-                    movePlateGather(rotatePlate + 3);
+                .UNSTABLE_addTemporalMarkerOffset(0.3, ()->{
+                    movePlateGather(rotatePlate);
                     shooter.setVelocity(motorRPM);
                 })
-                .splineToConstantHeading(new Vector2d(16, -56), Math.toRadians(-90))
+                .splineToConstantHeading(new Vector2d(17.4, -54), Math.toRadians(-90))
                 .resetVelConstraint()
-                .UNSTABLE_addTemporalMarkerOffset(-0.2, ()->{
-                    if(aprilTagID == 22) movePlateID((rotatePlate)*2 + 5, 0.2);
-                    if(aprilTagID == 23) movePlateID(rotatePlate + 5, 0.2);
+                .UNSTABLE_addTemporalMarkerOffset(0.1, ()->{
+                    if(aprilTagID == 22) movePlateID((rotatePlate*2)+18, 1);
+                    if(aprilTagID == 23) movePlateID(rotatePlate + 18, 1);
                 })
                 .setTangent(Math.toRadians(90))
                 .splineToSplineHeading(new Pose2d(-20, -8, Math.toRadians(-125)), Math.toRadians(180))

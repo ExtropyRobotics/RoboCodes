@@ -1,23 +1,33 @@
 package org.firstinspires.ftc.teamcode.TeleOPs;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.AnalogInput;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 
-@TeleOp (name = "TeleOP2")
+@TeleOp (name = "!TeleOP2")
 
 public class  TeleOP2 extends LinearOpMode{
+    public enum Intake_Sensor {
+        INTAKE,
+        ROTATE,
+        OUTAKE,
+        FORCED_OUTTAKE
+    }
+
+    public class Ball{
+        public int pos = 0;
+        public int color = 0;
+    }
+    Ball[] storage = {new Ball(), new Ball(), new Ball()};
 
     DcMotor plate;
     DcMotor intake;
@@ -25,57 +35,48 @@ public class  TeleOP2 extends LinearOpMode{
     Servo lift;
     Servo camera;
     Servo servoShoot;
+    Servo frontPlateServo;
+    Servo backPlateServo;
     DistanceSensor distanceSensor = null;
     NormalizedColorSensor test_color;
 
-    Ball[] storage = {new Ball(), new Ball(), new Ball()};
-
     int plateTarget = 0;
+    int plateOffset = 0;
+    int desiredPlatePoz = 0;
     int ballsCollected = -1;
-    boolean ballTaken = false;
-    boolean full = false;
-    int toShoot = 0;
-    double avgColor;
-    double hue = 0;
-    public class Ball{
-        public int pos = 0;
-        public int color = 0;
-    }
-    boolean rightBumperToggle = false;
-    boolean leftBumperToggle = true;
-
-    boolean shooterReeady = false;
-    boolean shot = false;
-    boolean liftUp = false;
     int i = 2;
+    int toShoot = 0;
 
+    double hue = 0;
 
-    public enum Intake_Sensor {
-        EMPTY,
-        ROTATE,
-        OUTAKE,
-        FORCED_OUTTAKE
+    boolean purpleBallToggle = false;
+    boolean greenBallToggle = true;
 
-    }
+    boolean movePlateRightToggle = false;
+    boolean movePlateLeftToggle = false;
 
-    SampleMecanumDrive drive;
-    ElapsedTime intake_sensor_timer = new ElapsedTime();
-    ElapsedTime motor_stop = new ElapsedTime();
-    boolean shootFound = false;
-    boolean rotateToggle = false;
-    boolean servoFail = false;
-    boolean dpadRightToggle = false;
-    boolean dpadLeftToggle = false;
+    boolean manualOuttakeToggle = false;
+    boolean manualOuttakeOnce = false;
+
     boolean forcedEmpty = false;
     boolean forcedEmptyOnce = false;
-    boolean ballShot = false;
-    boolean gamepad2xToggle = false;
-    int desiredPlatePoz = 0;
-    boolean plateMoveForced = false;
 
-    Intake_Sensor state = Intake_Sensor.EMPTY;
+    boolean forcedOuttakeToggle = false;
 
-    AnalogInput encoderServo;
+    boolean full = false;  // Becomes true when plate is full
+    boolean ballTaken = false;  // Acts as a toggle to switch between ROTATE and INTAKE states
+    boolean shootFound = false;  // Becomes true when the sensor finds the correct ball (depending on color), only in OUTTAKE
+    boolean ShooterReady = false;  // Becomes true when shooter motor reaches 1050 RPM, ideal RPM for shooting, in OUTTAKE and FORCED_OUTTAKE
+    boolean servoOpen = false;  // Becomes true when the "gate" servo opens, it's also needed for the lift to go up
+    boolean liftUp = false;  // Acts as a toggle so that the servo doesn't go up endlessly in OUTTAKE and FORCED_OUTTAKE, also needed to switch back to INTAKE state
+    boolean servoFail = false;  // Acts as a toggle for gamepad2.y, in case ball gets stuck during OUTTAKE, the servo goes down
+    boolean shot = false;  // Becomes true when servo goes back down in OUTTAKE and FORCED_OUTTAKE, also needed to empty the array element automatically and switch back to INTAKE
+    boolean ballOut = false;  // Acts as a toggle to empty the array element in OUTTAKE and FORCED_OUTTAKE, becomes true when the ball is actually shot
+
+    SampleMecanumDrive drive;
+    Intake_Sensor state = Intake_Sensor.INTAKE;
+
+    AnalogInput encoderLift;
     AnalogInput encoderStopper;
 
     @Override
@@ -83,6 +84,7 @@ public class  TeleOP2 extends LinearOpMode{
 
         drive = new SampleMecanumDrive(hardwareMap);
 
+        // In correlation with Configuratie.txt (HOPEFULLY)
 
         plate = hardwareMap.get(DcMotor.class, "plate");
         intake = hardwareMap.get(DcMotor.class, "intake");
@@ -92,37 +94,56 @@ public class  TeleOP2 extends LinearOpMode{
         camera = hardwareMap.get(Servo.class, "servo_camera");
         servoShoot = hardwareMap.get(Servo.class, "servo_shoot");
 
+        frontPlateServo = hardwareMap.get(Servo.class, "rightPlateAdjuster");
+        backPlateServo = hardwareMap.get(Servo.class, "leftPlateAdjuster");
+
         distanceSensor = hardwareMap.get(DistanceSensor.class, "distance");
         test_color = hardwareMap.get(NormalizedColorSensor.class, "color");
 
-        encoderServo = hardwareMap.get(AnalogInput.class, "axon_encoder");
+        encoderLift = hardwareMap.get(AnalogInput.class, "lift_encoder");
         encoderStopper = hardwareMap.get(AnalogInput.class, "stopper_encoder");
-
-        double encoderPoz = 1-encoderServo.getVoltage()/3.3;
-        double stopperPoz = 1-encoderStopper.getVoltage()/3.3;
-        double servoSpeed = 1-encoderServo.getVoltage()/3.3 - encoderPoz;
 
         plate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         plate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        plate.setPower(0.7);
+        plate.setPower(1);
         plate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         plate.setTargetPosition(plateTarget);
         plate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        double distance = distanceSensor.getDistance(DistanceUnit.MM);
+        double distance;
+        NormalizedRGBA colors;
 
-        NormalizedRGBA colors = test_color.getNormalizedColors();
+        double liftPoz;
+        double stopperPoz;
 
         waitForStart();
 
-        intake_sensor_timer.reset();
-        motor_stop.reset();
-
         while (opModeIsActive() && !isStopRequested()) {
-            encoderPoz = 1-encoderServo.getVoltage()/3.3;
+
+            // Turns RGB into hue for more sensor reliability
+            colors = test_color.getNormalizedColors();
+
+            double max = Math.max(colors.red, colors.blue);
+            double min = Math.min(colors.red, colors.blue);
+
+            max = Math.max(max, colors.green);
+            min = Math.min(min, colors.green);
+
+            double delta = max - min;
+
+            if(delta == 0) hue = 0;
+
+            if(max == colors.red) hue = 60 * (((colors.green - colors.blue) / delta) % 6);
+            if(max == colors.green) hue = 60 * ((colors.blue - colors.red) / delta);
+            if(max == colors.blue) hue = 60 * ((colors.red - colors.green) / delta);
+
+            if(hue < 0) hue += 360;
+
+            liftPoz = 1- encoderLift.getVoltage()/3.3;
             stopperPoz = 1-encoderStopper.getVoltage()/3.3;
-            servoSpeed = 1-encoderServo.getVoltage()/3.3 - encoderPoz;
+
             distance = distanceSensor.getDistance(DistanceUnit.MM);
+
             plate.setTargetPosition(plateTarget);
 
             drive.setWeightedDrivePower(new Pose2d(
@@ -132,72 +153,56 @@ public class  TeleOP2 extends LinearOpMode{
             ));
 
             full = ballsCollected == 2;
-
             if(full) intake.setPower(0);
 
-            switch(state){
-                case EMPTY:
-                    lift.setPosition(0.46);
-                    if(!forcedEmptyOnce) intake.setPower(1);
-                    servoShoot.setPosition(0.64);
-                    if(ballsCollected == -1){
-                        plateTarget = desiredPlatePoz;
-                    }
-                    if(distance < 45 && !full && plateTarget < plate.getCurrentPosition() + 5 && plateTarget > plate.getCurrentPosition() - 5 && !forcedEmptyOnce){
+            if(ballsCollected < -1) ballsCollected = -1;
+            if(ballsCollected > 2) ballsCollected = 2;
 
+            if(i == -1) i = 2;
+            if(i == 3) i = 0;
+
+
+            switch(state){
+                case INTAKE:
+
+                    lift.setPosition(0.46);
+                    servoShoot.setPosition(0.64);
+                    if(!forcedEmptyOnce) intake.setPower(1);
+
+                    if(ballsCollected == -1){
+                        plateTarget = desiredPlatePoz + plateOffset;
+                    }
+
+                    if(distance < 45 && !full && plateTarget < plate.getCurrentPosition() + 5 && plateTarget > plate.getCurrentPosition() - 5 && !forcedEmptyOnce){
                         if(!ballTaken) {
+
                             ballsCollected += 1;
-                            intake_sensor_timer.reset();
                             state = Intake_Sensor.ROTATE;
                             ballTaken = true;
-                        } else ballTaken = false;
 
-                        if(ballsCollected > 2) ballsCollected = 2;
+                        } else ballTaken = false;
                     }
-                    if(motor_stop.seconds() >= 10){
-                        shooter.setPower(0);
-                    }
+
                     break;
                 case ROTATE:
-                        colors = test_color.getNormalizedColors();
 
-                        double max = Math.max(colors.red, colors.blue);
-                        double min = Math.min(colors.red, colors.blue);
+                    storage[ballsCollected].pos = plate.getCurrentPosition();
+                    if(hue > 100) storage[ballsCollected].color = 2;
+                    if(hue < 100) storage[ballsCollected].color = 1;
 
-                        max = Math.max(max, colors.green);
-                        min = Math.min(min, colors.green);
-
-                        double delta = max - min;
-
-                        if(delta == 0) hue = 0;
-
-                        if(max == colors.red) hue = 60 * (((colors.green - colors.blue) / delta) % 6);
-                        if(max == colors.green) hue = 60 * ((colors.blue - colors.red) / delta);
-                        if(max == colors.blue) hue = 60 * ((colors.red - colors.green) / delta);
-
-                        if(hue < 0) hue += 360;
-
-                        storage[ballsCollected].pos = plate.getCurrentPosition();
-                        if(hue > 100) storage[ballsCollected].color = 2;
-                        if(hue < 100) storage[ballsCollected].color = 1;
-
-                    if(intake_sensor_timer. seconds() > 0.1){
-                        plateTarget += 178;
-                        state = Intake_Sensor.EMPTY;
-                    }
-
-                    if(motor_stop.seconds() >= 10){
-                        shooter.setPower(0);
-                    }
+                    plateTarget += 178;
+                    state = Intake_Sensor.INTAKE;
 
                     break;
                 case OUTAKE:
+
                     intake.setPower(0);
-                    boolean servoOpen = false;
                     shooter.setVelocity(1050);
 
+                    servoOpen = false;
+
                     if(shooter.getVelocity() > 1000){
-                        shooterReeady = true;
+                        ShooterReady = true;
                     }
 
                     if(!shootFound){
@@ -213,124 +218,81 @@ public class  TeleOP2 extends LinearOpMode{
                     if(shootFound && plate.getCurrentPosition() > plateTarget - 10 && plate.getCurrentPosition() < plateTarget + 10){
                         servoShoot.setPosition(0.47);
                         servoOpen = true;
-                     }
-                    if(servoOpen && shooterReeady && encoderPoz < 0.7 && !liftUp && stopperPoz < 0.375 && plate.getCurrentPosition() > plateTarget - 5 && plate.getCurrentPosition() < plateTarget + 5){
+                    }
+                    if(servoOpen && ShooterReady && liftPoz < 0.7 && !liftUp && stopperPoz < 0.375 && plate.getCurrentPosition() > plateTarget - 5 && plate.getCurrentPosition() < plateTarget + 5){
                         lift.setPosition(0.8);
                         liftUp = true;
                     }
 
-                    if(encoderPoz > 0.7 && shooterReeady && !shot){
+                    if(liftPoz > 0.7 && ShooterReady && !shot){
                         lift.setPosition(0.46);
                         shot = true;
                     }
 
-                    if(shooterReeady && shooter.getVelocity() < 1000 && !ballShot && shot){
+                    if(ShooterReady && shooter.getVelocity() < 1000 && !ballOut && shot){
                         ballsCollected -= 1;
                         storage[i].pos = 0;
                         storage[i].color = 0;
-                        ballShot = true;
+                        ballOut = true;
                     }
 
-                    if(encoderPoz < 0.5 && liftUp && shot) {
+                    if(liftPoz < 0.5 && liftUp && shot) {
                         liftUp = false;
-                        shooterReeady = false;
+                        ShooterReady = false;
                         shootFound = false;
                         shot = false;
-                        ballShot = false;
-                        motor_stop.reset();
-                        state = Intake_Sensor.EMPTY;
+                        ballOut = false;
+                        state = Intake_Sensor.INTAKE;
                     }
 
                     break;
                 case FORCED_OUTTAKE:
+
                     intake.setPower(0);
-                    servoOpen = false;
                     shooter.setVelocity(1050);
 
+                    servoOpen = false;
+
                     if(shooter.getVelocity() > 1000){
-                        shooterReeady = true;
+                        ShooterReady = true;
                     }
 
                     if(plate.getCurrentPosition() > plateTarget - 10 && plate.getCurrentPosition() < plateTarget + 10){
                         servoShoot.setPosition(0.47);
                         servoOpen = true;
                     }
-                    if(servoOpen && shooterReeady && encoderPoz < 0.7 && !liftUp && stopperPoz < 0.375 && plate.getCurrentPosition() > plateTarget - 5 && plate.getCurrentPosition() < plateTarget + 5){
+                    if(servoOpen && ShooterReady && liftPoz < 0.7 && !liftUp && stopperPoz < 0.375 && plate.getCurrentPosition() > plateTarget - 5 && plate.getCurrentPosition() < plateTarget + 5){
                         lift.setPosition(0.8);
                         liftUp = true;
                     }
 
-                    if(encoderPoz > 0.7 && shooterReeady && !shot){
+                    if(liftPoz > 0.7 && ShooterReady && !shot){
                         lift.setPosition(0.46);
                         shot = true;
                     }
 
-                    if(shooterReeady && shooter.getVelocity() < 1000 && !ballShot && shot){
+                    if(ShooterReady && shooter.getVelocity() < 1000 && !ballOut && shot){
                         ballsCollected -= 1;
                         storage[i].pos = 0;
                         storage[i].color = 0;
-                        ballShot = true;
+                        ballOut = true;
                     }
 
-                    if(encoderPoz < 0.5 && liftUp && shot) {
+                    if(liftPoz < 0.5 && liftUp && shot) {
                         liftUp = false;
-                        shooterReeady = false;
+                        ShooterReady = false;
                         shootFound = false;
                         shot = false;
-                        ballShot = false;
-                        motor_stop.reset();
-                        state = Intake_Sensor.EMPTY;
+                        ballOut = false;
+                        state = Intake_Sensor.INTAKE;
                     }
             }
 
-            if(gamepad2.dpad_right && !dpadRightToggle){
-                dpadRightToggle = true;
-                desiredPlatePoz += 178;
-                if(desiredPlatePoz > 500) desiredPlatePoz = 0;
-            } else dpadRightToggle = false;
-
-            if(gamepad2.dpad_left && !dpadLeftToggle){
-                dpadLeftToggle = true;
-                desiredPlatePoz -= 178;
-                if(desiredPlatePoz < 0) desiredPlatePoz = 178*2;
-            } else dpadLeftToggle = false;
 
 
-            if(i == -1) i = 2;
-            if(i == 3) i = 0;
-
-            if(gamepad2.right_bumper && ballsCollected > -1){
-                if(!rightBumperToggle)
-                {
-                    forcedEmptyOnce = true;
-                    state = Intake_Sensor.OUTAKE;
-                    toShoot = 2;
-                    rightBumperToggle = true;
-                }
-            } else rightBumperToggle = false;
-
-            if(gamepad2.left_bumper && ballsCollected > -1){
-                if(!leftBumperToggle)
-                {
-                    forcedEmptyOnce = true;
-                    state = Intake_Sensor.OUTAKE;
-                    toShoot = 1;
-                    leftBumperToggle = true;
-                }
-            } else leftBumperToggle = false;
-
-            if(gamepad2.x){
-                if(!gamepad2xToggle)
-                {
-                    forcedEmptyOnce = true;
-                    state = Intake_Sensor.FORCED_OUTTAKE;
-                    gamepad2xToggle = true;
-                }
-            } else gamepad2xToggle = false;
-
-            if(gamepad2.a && !forcedEmpty){
+            if(gamepad2.a && !forcedEmpty){  // Empties the array, in case of wrong color detected, also makes it possible to move plate using dpads
                 forcedEmptyOnce = false;
-                state = Intake_Sensor.EMPTY;
+                state = Intake_Sensor.INTAKE;
                 forcedEmpty = true;
                 storage[0].pos = 0;
                 storage[1].pos = 0;
@@ -341,61 +303,89 @@ public class  TeleOP2 extends LinearOpMode{
                 ballsCollected = -1;
             } else forcedEmpty = false;
 
-//            if(gamepad2.dpad_right && !dpadRightToggle){
-//                i++;
-//                if(i > 2) i = 0;
-//                storage[i].color = 0;
-//                plateTarget = storage[i].pos;
-//                dpadRightToggle = true;
-//            } else dpadRightToggle = false;
-//
-//            if(gamepad2.dpad_left && !dpadLeftToggle){
-//                i--;
-//                if(i < 0) i = 2;
-//                storage[i].color = 0;
-//                plateTarget = storage[i].pos;
-//                dpadLeftToggle = true;
-//            } else dpadLeftToggle = false;
 
-            if(gamepad2.y && !servoFail){
-                state = Intake_Sensor.EMPTY;
+
+            if(gamepad2.right_bumper && ballsCollected > -1){  // Rotate plate until ball is purple then shoot it
+                if(!purpleBallToggle)
+                {
+                    forcedEmptyOnce = true;
+                    state = Intake_Sensor.OUTAKE;
+                    toShoot = 2;
+                    purpleBallToggle = true;
+                }
+            } else purpleBallToggle = false;
+
+            if(gamepad2.left_bumper && ballsCollected > -1){  // Rotate plate until ball is green then shoot it
+                if(!greenBallToggle)
+                {
+                    forcedEmptyOnce = true;
+                    state = Intake_Sensor.OUTAKE;
+                    toShoot = 1;
+                    greenBallToggle = true;
+                }
+            } else greenBallToggle = false;
+
+
+
+            if(gamepad2.dpad_right && !movePlateRightToggle){  // Move plate to the right, only works when array is emptied
+                movePlateRightToggle = true;
+                desiredPlatePoz -= 178;
+            } else movePlateRightToggle = false;
+
+            if(gamepad2.dpad_left && !movePlateLeftToggle){  // Move plate to the left, only works when array is emptied
+                movePlateLeftToggle = true;
+                desiredPlatePoz += 178;
+            } else movePlateLeftToggle = false;
+
+
+
+            if(gamepad2.x){  // Forced outtake, used because regular outtake doesn't work after array is emptied
+                if(!forcedOuttakeToggle)
+                {
+                    forcedEmptyOnce = true;
+                    state = Intake_Sensor.FORCED_OUTTAKE;
+                    forcedOuttakeToggle = true;
+                }
+            } else forcedOuttakeToggle = false;
+
+
+
+            if(gamepad2.dpad_up){  // Slightly move plate left in case of bad alignment after autonomous (hold)
+                desiredPlatePoz += 2;
+            }
+            if(gamepad2.dpad_down){  // Slightly move plate right in case of bad alignment after autonomous (hold)
+                desiredPlatePoz -= 2;
+            }
+
+
+
+            if(gamepad2.b){  // Toggle the outtake motor manually, outside of state machine if needed (so you don't have to wait until 1050 RPM at basket)
+                if(!manualOuttakeToggle){
+                    if(manualOuttakeOnce) shooter.setPower(0);
+                    else shooter.setVelocity(1050);
+
+                    manualOuttakeOnce = !manualOuttakeOnce;
+                    manualOuttakeToggle = true;
+                }
+            } else manualOuttakeToggle = false;
+
+
+
+            if(gamepad2.y && !servoFail){  // Forcefully resets lift position in case of failure
+                state = Intake_Sensor.INTAKE;
                 liftUp = false;
-                shooterReeady = false;
+                ShooterReady = false;
                 shootFound = false;
                 shot = false;
                 servoFail = true;
             } else servoFail = false;
 
-            if(ballsCollected < -1) ballsCollected = -1;
-
             plate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-//            colors = test_color.getNormalizedColors();
-//
-//            double max = Math.max(colors.red, colors.blue);
-//            double min = Math.min(colors.red, colors.blue);
-//
-//            max = Math.max(max, colors.green);
-//            min = Math.min(min, colors.green);
-//
-//            double delta = max - min;
-//
-//            double hue = 0;
-//
-//            if(delta == 0) hue = 0;
-//
-//            if(max == colors.red) hue = 60 * (((colors.green - colors.blue) / delta) % 6);
-//            if(max == colors.green) hue = 60 * ((colors.blue - colors.red) / delta);
-//            if(max == colors.blue) hue = 60 * ((colors.red - colors.green) / delta);
-//
-//            if(hue < 0) hue += 360;
 
             telemetry.addData("====================:", "");
             telemetry.addData("State: ", state);
             telemetry.addData("Motor Speed: ", shooter.getVelocity());
             telemetry.addData("toShoot: ", toShoot);
-            telemetry.addData("motorstop:", motor_stop.seconds());
-            telemetry.addData("timer: ", intake_sensor_timer.seconds());
             telemetry.addData("Ball:", storage[0].color);
             telemetry.addData("Ball:", storage[0].pos);
             telemetry.addData("Ball1:", storage[1].color);
@@ -408,13 +398,12 @@ public class  TeleOP2 extends LinearOpMode{
             telemetry.addData("====================:", "");
             telemetry.addData("Distance: ", distanceSensor.getDistance(DistanceUnit.MM));
             telemetry.addData("hue: ", hue);
-            telemetry.addData("avgcolor:", avgColor);
             telemetry.addData("BallsCollected:", ballsCollected);
             telemetry.addData("plateTarget:", plateTarget);
-            telemetry.addData("axonencoder:", encoderPoz);
+            telemetry.addData("currentPlatePoz:" , plate.getCurrentPosition());
+            telemetry.addData("axonencoder:", liftPoz);
             telemetry.addData("shooterencoder:", stopperPoz);
-            telemetry.addData("servoSpeed", servoSpeed);
-
+//
             telemetry.update();
         }
     }

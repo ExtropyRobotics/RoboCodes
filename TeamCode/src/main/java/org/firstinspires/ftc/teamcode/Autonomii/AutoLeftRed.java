@@ -25,34 +25,61 @@ import java.util.List;
 @Autonomous (name = "!AutoLeftRed")
 
 public class AutoLeftRed extends LinearOpMode {
+    public void movePlateID(int plateTarget, double power){
+        plate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        plate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        plate.setPower(power);
+        plate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        plate.setTargetPosition(plateTarget);
+        plate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
     public void movePlate(int plateTarget){
         plate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         plate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        plate.setPower(0.8);
+        plate.setPower(0.45);
+        plate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        plate.setTargetPosition(plateTarget);
+        plate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    public void movePlateGather(int plateTarget){
+        plate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        plate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        plate.setPower(0.3);
         plate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         plate.setTargetPosition(plateTarget);
         plate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
     DcMotor plate = null;
+    int rotatePlate = 177;
     DcMotor intake = null;
     DcMotorEx shooter = null;
     Servo lift = null;
+    double liftUp = 0.8;
+    double liftDown = 0.46;
     Servo camera = null;
+    Servo servoShoot = null;
+    int motorRPM = 1055;
+    double servoShootOpen = 0.47;
+    double servoShootClose = 0.64;
     Limelight3A limelight;
     LLResult llResult;
     int aprilTagID = 0;
+    boolean firstAprilTag = false;
     NormalizedColorSensor colorSensor;
     DistanceSensor distanceSensor;
-    Pose2d startingPose = new Pose2d(-51, 44, Math.toRadians(-125));
+    Pose2d startingPose = new Pose2d(-51, 44, Math.toRadians(125));
 
-    class autoThread implements Runnable{
+    class autoThread implements Runnable {
         @Override
         public void run() {
-            while(opModeIsActive() && !isStopRequested()){
+
+
+            while (opModeIsActive() && !isStopRequested()) {
                 llResult = limelight.getLatestResult();
 
-                if(llResult != null && llResult.isValid()) {
+                if (llResult != null && llResult.isValid() && !isStopRequested()) {
                     limelight.pipelineSwitch(0);
                     List<LLResultTypes.FiducialResult> fiducialResults = llResult.getFiducialResults();
                     for (LLResultTypes.FiducialResult fr : fiducialResults) {
@@ -60,6 +87,9 @@ public class AutoLeftRed extends LinearOpMode {
                         aprilTagID = fr.getFiducialId();
                         telemetry.update();
                     }
+                    if (aprilTagID == 22 && !firstAprilTag) movePlateID(rotatePlate * 2, 0.2);
+                    if (aprilTagID == 23 && !firstAprilTag) movePlateID(rotatePlate, 0.2);
+                    camera.setPosition(1);
                 }
             }
         }
@@ -77,158 +107,169 @@ public class AutoLeftRed extends LinearOpMode {
         plate = hardwareMap.get(DcMotor.class, "plate");
         intake = hardwareMap.get(DcMotor.class, "intake");
         shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+
         lift = hardwareMap.get(Servo.class, "lift");
         camera = hardwareMap.get(Servo.class, "servo_camera");
+        servoShoot = hardwareMap.get(Servo.class, "servo_shoot");
+
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         distanceSensor = hardwareMap.get(DistanceSensor.class, "distance");
         colorSensor = hardwareMap.get(NormalizedColorSensor.class, "color");
 
         TrajectorySequence DecodeAuto= drive.trajectorySequenceBuilder(startingPose)
                 .UNSTABLE_addTemporalMarkerOffset(0, ()->{
-                            shooter.setVelocity(1000);
-                            if(aprilTagID == 22) movePlate(179*2);
-                            if(aprilTagID == 23) movePlate(179);
-                        })
-                        .setTangent(Math.toRadians(-45))
-                            .splineToConstantHeading(new Vector2d(-31,21),Math.toRadians(-45))
-                        .UNSTABLE_addTemporalMarkerOffset(1, ()->{
-                            lift.setPosition(0.8);
-                            shooter.setVelocity(1100);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(1.5, ()->{
-                            lift.setPosition(0.46);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(1.7, ()->{
-                            movePlate(179);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(2.7, ()->{
-                            lift.setPosition(0.8);
-//                    shooter.setVelocity(1100);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(3.2, ()->{
-                            lift.setPosition(0.46);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(3.4, ()->{
-                            movePlate(179);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(4.4, ()->{
-                            lift.setPosition(0.8);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(4.9, ()->{
-                            lift.setPosition(0.46);
-                            shooter.setVelocity(0);
-                            intake.setPower(1);
-                        })
-                            .waitSeconds(4.9)
-                            .setTangent(Math.toRadians(-45))
-                            .splineToSplineHeading(new Pose2d(-13, 18, Math.toRadians(90)), Math.toRadians(0))
-                            .splineToConstantHeading(new Vector2d(-8, 26), Math.toRadians(90))
-                            .setVelConstraint(new TranslationalVelocityConstraint(10))
-                        .UNSTABLE_addTemporalMarkerOffset(0.4, ()->{
-                            movePlate(179);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(1.2, ()->{
-                            movePlate(179);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(1.6, ()->{
-                            shooter.setVelocity(1000);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(2.1, ()->{
-                            intake.setPower(0);
-                            if(aprilTagID == 21) movePlate(179);
-                            if(aprilTagID == 23) movePlate(179*2);
-                        })
-                            .splineToConstantHeading(new Vector2d(-8, 45), Math.toRadians(90))
-                            .resetVelConstraint()
-                            .setTangent(Math.toRadians(-90))
-                            .splineToSplineHeading(new Pose2d(-30, 20, Math.toRadians(120)), Math.toRadians(180))
-                        .UNSTABLE_addTemporalMarkerOffset(0.6, ()->{
-                            lift.setPosition(0.8);
-                            shooter.setVelocity(1000);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(1.1, ()->{
-                            lift.setPosition(0.46);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(1.3, ()->{
-                            movePlate(179);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(2.2, ()->{
-                            lift.setPosition(0.8);
-//                    shooter.setVelocity(1100);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(2.8, ()->{
-                            lift.setPosition(0.46);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(3, ()->{
-                            movePlate(179);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(4, ()->{
-                            lift.setPosition(0.8);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(4.5, ()->{
-                            lift.setPosition(0.46);
-                            shooter.setVelocity(0);
-                            intake.setPower(1);
-                        })
-                            .waitSeconds(4.5)
-                            .setTangent(Math.toRadians(0))
+                    thread.start();
+                    camera.setPosition(1);
+                    shooter.setVelocity(motorRPM);
+                    servoShoot.setPosition(servoShootClose);
+                })
+                .setTangent(Math.toRadians(-45))
+                .splineToSplineHeading(new Pose2d(-17,7, Math.toRadians(133)),Math.toRadians(-45))
+                .UNSTABLE_addTemporalMarkerOffset(0.4, ()->{
+                    firstAprilTag = true;
+                    servoShoot.setPosition(servoShootOpen);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(1.1, ()->{
+                    lift.setPosition(liftUp);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(1.7, ()->{
+                    lift.setPosition(liftDown);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(2.1, ()->{
+                    movePlate(rotatePlate);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(3.2, ()->{
+                    lift.setPosition(liftUp);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(3.6, ()->{
+                    lift.setPosition(liftDown);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(3.8, ()->{
+                    movePlate(rotatePlate);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(4.9, ()->{
+                    lift.setPosition(liftUp);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(5.3, ()->{
+                    lift.setPosition(liftDown);
+                    shooter.setVelocity(0);
+                    intake.setPower(1);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(5.6, ()->{
+                    servoShoot.setPosition(servoShootClose);
+                })
+                .waitSeconds(5.3)
+                .setTangent(Math.toRadians(45))
+                .splineToSplineHeading(new Pose2d(-7, 26, Math.toRadians(90)), Math.toRadians(90))
+                .setVelConstraint(new TranslationalVelocityConstraint(15))
+                .UNSTABLE_addTemporalMarkerOffset(0, ()->{
+                    movePlateGather(rotatePlate);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(0.5, ()->{
+                    movePlateGather(rotatePlate + 3);
+                })
+                .splineToConstantHeading(new Vector2d(-7, 53), Math.toRadians(90))
+                .resetVelConstraint()
+                .UNSTABLE_addTemporalMarkerOffset(-0.2, ()->{
+                    if(aprilTagID == 21) movePlateID(rotatePlate, 0.2);
+                    if(aprilTagID == 23) movePlateID(rotatePlate*2, 0.2);
+                    shooter.setVelocity(motorRPM);
+                })
+                .setTangent(Math.toRadians(-90))
+                .splineToSplineHeading(new Pose2d(-14, 8, Math.toRadians(133)), Math.toRadians(-45))
+                .UNSTABLE_addTemporalMarkerOffset(0.3, ()->{
+                    servoShoot.setPosition(servoShootOpen);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(0.6, ()->{
+                    intake.setPower(0);
+                    lift.setPosition(liftUp);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(1.2, ()->{
+                    lift.setPosition(liftDown);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(1.4, ()->{
+                    movePlate(rotatePlate);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(2.5, ()->{
+                    lift.setPosition(liftUp);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(2.9, ()->{
+                    lift.setPosition(liftDown);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(3.1, ()->{
+                    movePlate(rotatePlate);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(4.2, ()->{
+                    lift.setPosition(liftUp);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(4.6, ()->{
+                    lift.setPosition(liftDown);
+                    shooter.setVelocity(0);
+                    intake.setPower(1);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(5.1, ()->{
+                    servoShoot.setPosition(servoShootClose);
+                })
+                .waitSeconds(4.6)
+                .setTangent(0)
                             .splineToSplineHeading(new Pose2d(5, 18, Math.toRadians(90)), Math.toRadians(0))
-                            .splineToConstantHeading(new Vector2d(13, 26), Math.toRadians(90))
-                            .setVelConstraint(new TranslationalVelocityConstraint(10))
-                        .UNSTABLE_addTemporalMarkerOffset(0.7, ()->{
-                            movePlate(179);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(1.5, ()->{
-                            movePlate(179);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(2.1, ()->{
-                            shooter.setVelocity(1000);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(2.2, ()->{
-                            intake.setPower(0);
-                            if(aprilTagID == 22) movePlate(179*2);
-                            if(aprilTagID == 23) movePlate(179);
-                        })
-                            .splineToConstantHeading(new Vector2d(13, 45), Math.toRadians(-90))
+                            .splineToConstantHeading(new Vector2d(12, 18), Math.toRadians(0))
+                            .splineToConstantHeading(new Vector2d(16, 23), Math.toRadians(90))
+                            .setVelConstraint(new TranslationalVelocityConstraint(17))
+                .UNSTABLE_addTemporalMarkerOffset(0.3, ()->{
+                    movePlateGather(rotatePlate);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(0.8, ()->{
+                    movePlateGather(rotatePlate + 3);
+                    shooter.setVelocity(motorRPM);
+                })
+                            .splineToConstantHeading(new Vector2d(16, 60), Math.toRadians(90))
                             .resetVelConstraint()
-                            .setTangent(Math.toRadians(-90))
-                            .splineToSplineHeading(new Pose2d(-30, 20, Math.toRadians(120)), Math.toRadians(180))
-                        .UNSTABLE_addTemporalMarkerOffset(1, ()->{
-                            lift.setPosition(0.8);
-                            shooter.setVelocity(1000);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(1.5, ()->{
-                            lift.setPosition(0.46);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(1.7, ()->{
-                            movePlate(179);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(2.6, ()->{
-                            lift.setPosition(0.8);
-//                    shooter.setVelocity(1100);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(3.2, ()->{
-                            lift.setPosition(0.46);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(3.4, ()->{
-                            movePlate(179);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(4.4, ()->{
-                            lift.setPosition(0.8);
-                        })
-                        .UNSTABLE_addTemporalMarkerOffset(4.8, ()->{
-                            lift.setPosition(0.46);
-                            shooter.setVelocity(0);
-                            intake.setPower(0);
-                        })
+                .UNSTABLE_addTemporalMarkerOffset(-0.2, ()->{
+                    if(aprilTagID == 22) movePlateID((rotatePlate)*2, 0.2);
+                    if(aprilTagID == 23) movePlateID(rotatePlate, 0.2);
+                    rotatePlate += 12;
+                })
+                .setTangent(Math.toRadians(-90))
+                .splineToSplineHeading(new Pose2d(-14, 8, Math.toRadians(133)), Math.toRadians(180))
+                .UNSTABLE_addTemporalMarkerOffset(0.7, ()->{
+                    servoShoot.setPosition(servoShootOpen);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(1.1, ()->{
+                    intake.setPower(0);
+                    lift.setPosition(liftUp);
+                    shooter.setVelocity(1075);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(1.6, ()->{
+                    lift.setPosition(liftDown);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(1.8, ()->{
+                    movePlate(rotatePlate);
+                    shooter.setVelocity(motorRPM);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(2.5, ()->{
+                    lift.setPosition(liftUp);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(3.5, ()->{
+                    lift.setPosition(liftDown);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(3.9, ()->{
+                    movePlate(rotatePlate + 5);
+                })
+//                .UNSTABLE_addTemporalMarkerOffset(4.5, ()->{
+//                    lift.setPosition(liftUp);
+//                })
+//                .UNSTABLE_addTemporalMarkerOffset(4.9, ()->{
+//                    lift.setPosition(liftDown);
+//                    shooter.setVelocity(0);
+//                })
                             .waitSeconds(200)
-                .build();
+                            .build();
 
         drive.setPoseEstimate(startingPose);
         limelight.start();
         thread.start();
         waitForStart();
-        sleep(500);
         drive.followTrajectorySequence(DecodeAuto);
     }
 }
