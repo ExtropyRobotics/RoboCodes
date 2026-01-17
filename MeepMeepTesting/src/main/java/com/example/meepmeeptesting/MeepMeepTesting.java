@@ -17,7 +17,7 @@ import javax.imageio.ImageIO;
 public class MeepMeepTesting {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(600);
-        Pose2d startingLeftRed = new Pose2d(-51, 44, Math.toRadians(125));
+        Pose2d startingLeftRed = new Pose2d(-51, 44, Math.toRadians(155));
         Pose2d startingLeftBlue = new Pose2d(-51, -44, Math.toRadians(-125));
         Pose2d startingRightBlue = new Pose2d(58, -10, Math.toRadians(180));
 
@@ -77,7 +77,7 @@ public class MeepMeepTesting {
 //                    lift.setPosition(liftDown);
 //                })
 //                .UNSTABLE_addTemporalMarkerOffset(2.2, ()->{
-//                    movePlate(rotatePlate);
+//                    movePlate(plate.getCurrentPosition() + rotatePlate);
 //                })
 //                .UNSTABLE_addTemporalMarkerOffset(2.9, ()->{
 //                    lift.setPosition(liftUp);
@@ -86,7 +86,7 @@ public class MeepMeepTesting {
 //                    lift.setPosition(liftDown);
 //                })
 //                .UNSTABLE_addTemporalMarkerOffset(3.5, ()->{
-//                    movePlate(rotatePlate - 2);
+//                    movePlate(plate.getCurrentPosition() + rotatePlate);
 //                })
 //                .UNSTABLE_addTemporalMarkerOffset(4.6, ()->{
 //                    lift.setPosition(liftUp);
@@ -98,25 +98,30 @@ public class MeepMeepTesting {
 //                })
 //                .UNSTABLE_addTemporalMarkerOffset(5.5, ()->{
 //                    servoShoot.setPosition(servoShootClose);
+//                    movePlate(0);
 //                    rotatePlate = 179;
+//                    motorRPM = 1100;
 //                })
                 .waitSeconds(5)
                 .setTangent(Math.toRadians(0))
                 .splineToSplineHeading(new Pose2d(-16, 8, Math.toRadians(90)), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(-10, 26), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(-9.7, 20), Math.toRadians(90))
                 .setVelConstraint(new TranslationalVelocityConstraint(17))
-//                .UNSTABLE_addTemporalMarkerOffset(0, ()->{
+//                .UNSTABLE_addTemporalMarkerOffset(0.35, ()->{
 //                    movePlateGather(rotatePlate);
-//                })
-//                .UNSTABLE_addTemporalMarkerOffset(0.3, ()->{
-//                    movePlateGather(rotatePlate + 23);
 //                    shooter.setVelocity(motorRPM);
 //                })
-                .splineToConstantHeading(new Vector2d(-10, 48), Math.toRadians(90))
+//                .UNSTABLE_addTemporalMarkerOffset(0.8, ()->{
+//                    movePlateGather(rotatePlate * 2);
+//                })
+                .splineToConstantHeading(new Vector2d(-9.7, 49), Math.toRadians(90))
+//                .UNSTABLE_addTemporalMarkerOffset(0.2, ()->{
+//                    movePlate(0);
+//                })
                 .resetVelConstraint()
-//                .UNSTABLE_addTemporalMarkerOffset(-0.2, ()->{
-//                    if(aprilTagID == 21) movePlateID(rotatePlate, 1);
-//                    if(aprilTagID == 23) movePlateID(rotatePlate*2, 1);
+//                .UNSTABLE_addTemporalMarkerOffset(0.2, ()->{
+//                    if(aprilTagID == 22) movePlateID(rotatePlate * 2, 1);
+//                    if(aprilTagID == 23) movePlateID(rotatePlate, 1);
 //                })
                 .setTangent(Math.toRadians(-90))
                 .splineToSplineHeading(new Pose2d(-18, 8, Math.toRadians(125)), Math.toRadians(180))
@@ -131,7 +136,7 @@ public class MeepMeepTesting {
 //                    lift.setPosition(liftDown);
 //                })
 //                .UNSTABLE_addTemporalMarkerOffset(1.4, ()->{
-//                    movePlate(rotatePlate);
+//                    movePlate(plate.getCurrentPosition() + rotatePlate);
 //                })
 //                .UNSTABLE_addTemporalMarkerOffset(2.5, ()->{
 //                    lift.setPosition(liftUp);
@@ -140,7 +145,7 @@ public class MeepMeepTesting {
 //                    lift.setPosition(liftDown);
 //                })
 //                .UNSTABLE_addTemporalMarkerOffset(3.1, ()->{
-//                    movePlate(rotatePlate);
+//                    movePlate(plate.getCurrentPosition() + rotatePlate);
 //                })
 //                .UNSTABLE_addTemporalMarkerOffset(4.2, ()->{
 //                    lift.setPosition(liftUp);
@@ -152,25 +157,26 @@ public class MeepMeepTesting {
 //                })
 //                .UNSTABLE_addTemporalMarkerOffset(5.1, ()->{
 //                    servoShoot.setPosition(servoShootClose);
+//                    movePlate(0);
 //                })
                 .waitSeconds(4.6)
                 .setTangent(0)
                 .splineToSplineHeading(new Pose2d(5, 14, Math.toRadians(110)), Math.toRadians(0))
                 .splineToConstantHeading(new Vector2d(12, 14), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(17.4, 23), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(17.2, 22), Math.toRadians(90))
                 .setVelConstraint(new TranslationalVelocityConstraint(17))
-//                .UNSTABLE_addTemporalMarkerOffset(0.2, ()->{
-//                    movePlateGather(rotatePlate);
-//                })
-//                .UNSTABLE_addTemporalMarkerOffset(0.5, ()->{
+//                .UNSTABLE_addTemporalMarkerOffset(0.3, ()->{
 //                    movePlateGather(rotatePlate);
 //                    shooter.setVelocity(motorRPM);
 //                })
-                .splineToConstantHeading(new Vector2d(17.4, 54), Math.toRadians(90))
+//                .UNSTABLE_addTemporalMarkerOffset(0.7, ()->{
+//                    movePlateGather(rotatePlate * 2);
+//                })
+                .splineToConstantHeading(new Vector2d(17.2, 54), Math.toRadians(90))
                 .resetVelConstraint()
 //                .UNSTABLE_addTemporalMarkerOffset(0.4, ()->{
-//                    if(aprilTagID == 22) movePlateID((rotatePlate*2)+23, 1);
-//                    if(aprilTagID == 23) movePlateID(rotatePlate + 23, 1);
+//                    if(aprilTagID == 22) movePlateID((rotatePlate* 4), 1);
+//                    if(aprilTagID == 23) movePlateID(rotatePlate * 3, 1);
 //                })
                 .setTangent(Math.toRadians(-90))
                 .splineToSplineHeading(new Pose2d(-20, 8, Math.toRadians(125)), Math.toRadians(180))
@@ -180,33 +186,34 @@ public class MeepMeepTesting {
 //                .UNSTABLE_addTemporalMarkerOffset(1.1, ()->{
 //                    intake.setPower(0);
 //                    lift.setPosition(liftUp);
-//                    shooter.setVelocity(1075);
+//                    shooter.setVelocity(motorRPM);
 //                })
 //                .UNSTABLE_addTemporalMarkerOffset(1.6, ()->{
 //                    lift.setPosition(liftDown);
 //                })
 //                .UNSTABLE_addTemporalMarkerOffset(1.8, ()->{
-//                    movePlate(rotatePlate);
+//                    movePlate(plate.getCurrentPosition() + rotatePlate);
 //                    shooter.setVelocity(motorRPM);
 //                })
 //                .UNSTABLE_addTemporalMarkerOffset(2.2, ()->{
 //                    lift.setPosition(liftUp);
 //                })
-//                .UNSTABLE_addTemporalMarkerOffset(3.4, ()->{
+//                .UNSTABLE_addTemporalMarkerOffset(2.7, ()->{
 //                    lift.setPosition(liftDown);
+//                    shooter.setVelocity(motorRPM-70);
 //                })
-//                .UNSTABLE_addTemporalMarkerOffset(3.8, ()->{
-//                    movePlate(rotatePlate);
+//                .UNSTABLE_addTemporalMarkerOffset(3, ()->{
+//                    movePlate(plate.getCurrentPosition() + rotatePlate);
 //                })
-//                .UNSTABLE_addTemporalMarkerOffset(4.9, ()->{
+//                .UNSTABLE_addTemporalMarkerOffset(3.5, ()->{
 //                    lift.setPosition(liftUp);
 //                })
-//                .UNSTABLE_addTemporalMarkerOffset(5.3, ()->{
+//                .UNSTABLE_addTemporalMarkerOffset(4, ()->{
 //                    lift.setPosition(liftDown);
 //                    shooter.setVelocity(0);
 //                })
-//                .waitSeconds(200)
-                .build());
+                .waitSeconds(200)
+                        .build());
 
         RoadRunnerBotEntity leftBlue = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width

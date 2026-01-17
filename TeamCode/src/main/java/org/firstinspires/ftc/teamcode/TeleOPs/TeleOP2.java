@@ -63,6 +63,8 @@ public class  TeleOP2 extends LinearOpMode{
 
     boolean forcedOuttakeToggle = false;
 
+    boolean forceOpenServo = false;
+
     boolean full = false;  // Becomes true when plate is full
     boolean ballTaken = false;  // Acts as a toggle to switch between ROTATE and INTAKE states
     boolean shootFound = false;  // Becomes true when the sensor finds the correct ball (depending on color), only in OUTTAKE
@@ -116,9 +118,18 @@ public class  TeleOP2 extends LinearOpMode{
         double liftPoz;
         double stopperPoz;
 
+        while(opModeInInit() && !isStopRequested()){
+            frontPlateServo.setPosition(0.5229);
+            backPlateServo.setPosition(0.8729);
+            plate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
+
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
+
+            frontPlateServo.setPosition(0.8007);
+            backPlateServo.setPosition(0.1993);
 
             // Turns RGB into hue for more sensor reliability
             colors = test_color.getNormalizedColors();
@@ -166,7 +177,9 @@ public class  TeleOP2 extends LinearOpMode{
                 case INTAKE:
 
                     lift.setPosition(0.46);
-                    servoShoot.setPosition(0.64);
+                    if(!forceOpenServo) {
+                        servoShoot.setPosition(0.64);
+                    }
                     if(!forcedEmptyOnce) intake.setPower(1);
 
                     if(ballsCollected == -1){
@@ -379,6 +392,13 @@ public class  TeleOP2 extends LinearOpMode{
                 shot = false;
                 servoFail = true;
             } else servoFail = false;
+
+
+
+            if(gamepad1.right_bumper && !forceOpenServo){
+                servoShoot.setPosition(0.47);
+                forceOpenServo = true;
+            } else forceOpenServo = false;
 
             plate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
