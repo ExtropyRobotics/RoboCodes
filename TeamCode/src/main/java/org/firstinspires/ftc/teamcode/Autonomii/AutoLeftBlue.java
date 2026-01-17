@@ -52,7 +52,7 @@ public class AutoLeftBlue extends LinearOpMode {
     }
 
     DcMotor plate = null;
-    int rotatePlate = 178;
+    int rotatePlate = 176;
     DcMotor intake = null;
     DcMotorEx shooter = null;
     Servo lift = null;
@@ -183,14 +183,14 @@ public class AutoLeftBlue extends LinearOpMode {
                     movePlateGather(rotatePlate);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(0.3, ()->{
-                    movePlateGather(rotatePlate + 22);
+                    movePlateGather(rotatePlate + 23);
+                    shooter.setVelocity(motorRPM);
                 })
                 .splineToConstantHeading(new Vector2d(-10, -48), Math.toRadians(-90))
                 .resetVelConstraint()
                 .UNSTABLE_addTemporalMarkerOffset(-0.2, ()->{
                     if(aprilTagID == 21) movePlateID(rotatePlate, 1);
                     if(aprilTagID == 23) movePlateID(rotatePlate*2, 1);
-                    shooter.setVelocity(motorRPM);
                 })
                 .setTangent(Math.toRadians(90))
                 .splineToSplineHeading(new Pose2d(-18, -8, Math.toRadians(-125)), Math.toRadians(180))
@@ -236,15 +236,15 @@ public class AutoLeftBlue extends LinearOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(0.2, ()->{
                     movePlateGather(rotatePlate);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(0.3, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(0.5, ()->{
                     movePlateGather(rotatePlate);
                     shooter.setVelocity(motorRPM);
                 })
                 .splineToConstantHeading(new Vector2d(17.4, -54), Math.toRadians(-90))
                 .resetVelConstraint()
-                .UNSTABLE_addTemporalMarkerOffset(0.1, ()->{
-                    if(aprilTagID == 22) movePlateID((rotatePlate*2)+18, 1);
-                    if(aprilTagID == 23) movePlateID(rotatePlate + 18, 1);
+                .UNSTABLE_addTemporalMarkerOffset(0.4, ()->{
+                    if(aprilTagID == 22) movePlateID((rotatePlate*2)+23, 1);
+                    if(aprilTagID == 23) movePlateID(rotatePlate + 23, 1);
                 })
                 .setTangent(Math.toRadians(90))
                 .splineToSplineHeading(new Pose2d(-20, -8, Math.toRadians(-125)), Math.toRadians(180))
