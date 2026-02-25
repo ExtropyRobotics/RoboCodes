@@ -1,0 +1,35 @@
+Control Hub                                      Expansion Hub
+
+Motors                                           Motors
+control0 - outtake*                              expansion0 - plateEncoder*
+control1 - turret*                               expansion1 - intake
+control2 - rightFront                            expansion2 - leftFront
+control3 - rightBack                             expansion3 - leftBack
+
+Servos                                           Servos
+control0 -                                       expansion0 -
+control1 - plateServoRight                       expansion1 -
+control2 -                                       expansion2 -
+control3 -                                       expansion3 -
+control4 -                                       expansion4 -
+control5 -                                       expansion5 - plateServoLeft
+
+I2C                                              I2C
+Bus0 - imu                                       Bus0 -
+Bus1 -                                           Bus1 -
+Bus2 -                                           Bus2 -
+Bus3 -                                           Bus3 -
+
+Analog
+control1 (0:1) - rightEncoder
+control3 (2:3) -
+expansion1 (0:1) - leftEncoder
+expansion3 (2:3) -
+
+Servo Positions:
+No servos
+
+Y = △
+B = ◯
+A = ✕
+X = □

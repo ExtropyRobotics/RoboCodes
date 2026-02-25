@@ -23,6 +23,5 @@ public class Movement extends LinearOpMode {
                     gamepad1.right_stick_x
             ));
         }
-
     }
 }

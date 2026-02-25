@@ -1,0 +1,58 @@
+===== DEFAULT VALUES =====
+
+In the class the turret is used in, set kP to 0.02, kI and kD to 0, lookaheadTime to 0.10,
+POSITION_TOLERANCE to ~1.5, MIN_POWER to ~0.05 and UNWIND_POWER to 0.5. Then set integral and
+lastError to 0;
+
+===== SETTING TURRET LIMITS =====
+
+To get started, run the encoderTester opMode, upon connecting a controller, use dpadUp to increase the
+turret motor's position, respectively use dpadDown to decrease the position.
+
+Keep moving the turret to one direction, until the robot's cables get stuck, then keep track of
+the value shown in telemetry. Do the same for the opposite direction.
+
+Stick these values into the MAX_TURRET_TICKS and MIN_TURRET_TICKS and apply a ~50 ticks (depending
+on the motor's encoder resolution) safety margin.
+
+===== PID TUNING =====
+
+Tuning must be done while ROBOT IS MOVING, run the turretTuning opMode
+
+I. Proportional
+First, set the kI and kD variables to 0 if not already set.
+Gradually increase kP until turret moves fast towards target.
+In case the turret overshoots, reduce kP.
+
+II. Derivative
+Start with a small kD. (~0.001)
+Increase until overshoot is reduced.
+Reduce in case of oscillations/jitter near the target.
+
+III. Integral
+Only add if there's a steady offset.
+Increase slowly until offset disappears.
+Reduce if slow oscillations or instability occurs.
+
+===== PREDICTIVE TRACKING =====
+
+Tune the lookaheadTime while the robot moves:
+
+If the turret lags behind, this could mean the lookaheadTime is too low
+If the turret overshoots, reduce lookaheadTime
+
+Typical lookaheadTime values are ~0.08-0.14 seconds
+
+===== POSITION TOLERANCE =====
+TODO: !!DOESN'T NEED TUNING IN OUR CASE!!
+(only marked as task for fancy color^)
+
+Reduce the POSITION_TOLERANCE variable if the turret stops too early
+Increase POSITION_TOLERANCE in case of jitters.
+
+===== MINIMUM MOTOR POWER =====
+TODO: In our case, just keep it as is
+(also only marked as task for fancy color^)
+
+If this is too low, the turret stalls near the target, if too high then it will oscillate at target
+Typically ~0.05-0.07 (friction of max power)
