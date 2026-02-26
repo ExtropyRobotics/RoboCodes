@@ -79,7 +79,7 @@ public class regioTeleOP extends LinearOpMode {
     IMU imu;
 
     int plateTargetPosition = 0;
-    int i = 0;
+    int i = 2;
     int pattern = 0;
 
     int sumPlate = 0;
@@ -104,6 +104,7 @@ public class regioTeleOP extends LinearOpMode {
     boolean shootFound = false;
     boolean shooterReady = false;
     boolean outtakeCompleted = false;
+    boolean atPattern = false;
 
     boolean pattern1Toggle = false;
     boolean pattern2Toggle = false;
@@ -143,7 +144,7 @@ public class regioTeleOP extends LinearOpMode {
                 RevHubOrientationOnRobot.UsbFacingDirection.UP
         );
 
-        // TODO: Set your custom AprilTag pipeline here before each match
+        // TODO: Set your AprilTag pipeline here before each match
         // 1 - Blue alliance
         // 2 - Red alliance
          limelight.pipelineSwitch(1);
@@ -159,12 +160,11 @@ public class regioTeleOP extends LinearOpMode {
 
             plateAtPosition = plateTargetPosition < plateEncoder.getCurrentPosition() + 200 && plateTargetPosition > plateEncoder.getCurrentPosition() - 200;
 
-
             double plateDt = timer.seconds();
 
             encoderPos = plateEncoder.getCurrentPosition();
             plateError = plateTargetPosition - encoderPos;
-            sumPlate += (int) plateError * plateDt;
+            sumPlate += (int) (plateError * plateDt);
             double deriv = (plateTargetPosition - encoderPos - plateError);
 
             platePow = plateP*plateError + plateI*sumPlate + deriv* plateD;
@@ -174,6 +174,8 @@ public class regioTeleOP extends LinearOpMode {
             movementStart();
             turretStart();
             imuStart();
+
+            intake.setPower(1);
 
             if(i2cTimer.seconds() >= 0.1){
                 artefactDistance = distanceSensor.getDistance(DistanceUnit.MM);
@@ -185,9 +187,9 @@ public class regioTeleOP extends LinearOpMode {
 
             switch (state){
                 case Intake:
-
-                    if(!full) intake.setPower(1);
                     outtake.setVelocity(0);
+
+                    if(artefactsGathered == -1) plateTargetPosition = 0;
 
                     if(plateAtPosition){
                         if(artefactDistance < 100 && !full){
@@ -214,27 +216,31 @@ public class regioTeleOP extends LinearOpMode {
                     break;
 
                 case Outtake:
-
-                    intake.setPower(0);
-
                     outtake.setVelocity(1050);
 
-                    if(outtake.getVelocity() > 1000) shooterReady = true;
-                    else shooterReady = false;
+                    if(outtake.getVelocity() > 1000) {
+                        shooterReady = true;
+                    } else shooterReady = false;
 
                     if (!shootFound) {
-                        for (i = 1; i <= 3; i++) {
+                        for (i = 2; i >= 0; i--) {
                             if (storage[i].color == 1) {
-                                plateTargetPosition = storage[i].pos;
-                                if(pattern == 3) plateTargetPosition += 8192/3;
-                                if(pattern == 2) plateTargetPosition += 8192/2;
+                                plateTargetPosition = storage[i].pos + 1000;
                                 shootFound = true;
                                 break;
                             }
                         }
                     }
 
-                    if(shooterReady && shootFound && !outtakeCompleted && plateAtPosition){
+                    if(shootFound && !atPattern){
+                        if(pattern == 3) plateTargetPosition += 8192/3;
+                        if(pattern == 2) plateTargetPosition += 8192/2;
+
+                        atPattern = true;
+                        pattern = 0;
+                    }
+
+                    if(shooterReady && shootFound && !outtakeCompleted && plateAtPosition && atPattern){
                         plateTargetPosition = -8192/3;
                         outtakeCompleted = true;
 
@@ -247,7 +253,7 @@ public class regioTeleOP extends LinearOpMode {
                         storage[1].color = 0;
                         storage[2].color = 0;
 
-                        artefactsGathered = 0;
+                        artefactsGathered = -1;
                         full = false;
                     }
 
@@ -257,6 +263,7 @@ public class regioTeleOP extends LinearOpMode {
                         shootFound = false;
                         outtakeCompleted = false;
                         pattern = 0;
+                        atPattern = false;
                     }
 
                     break;
@@ -294,12 +301,13 @@ public class regioTeleOP extends LinearOpMode {
             plateEncoder.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             telemetry.addData("state: ", state);
-            telemetry.addData("Ball:", storage[0].color);
-            telemetry.addData("Ball:", storage[0].pos);
-            telemetry.addData("Ball1:", storage[1].color);
-            telemetry.addData("Ball1:", storage[1].pos);
-            telemetry.addData("Ball2:", storage[2].color);
-            telemetry.addData("Ball2:", storage[2].pos);
+            telemetry.addData("Ball 1 color: ", storage[0].color);
+            telemetry.addData("Ball 1 pos: ", storage[0].pos);
+            telemetry.addData("Ball 2 color: ", storage[1].color);
+            telemetry.addData("Ball 2 pos: ", storage[1].pos);
+            telemetry.addData("Ball 3 color:", storage[2].color);
+            telemetry.addData("Ball 3 pos:", storage[2].pos);
+            telemetry.addData("outtake RPM: ", outtake.getVelocity());
             telemetry.addData("plateAtPosition: ", plateAtPosition);
             telemetry.addData("platePos: ", plateEncoder.getCurrentPosition());
             telemetry.addData("plateTarget: ", plateTargetPosition);

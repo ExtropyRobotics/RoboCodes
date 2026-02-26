@@ -3,8 +3,8 @@ Control Hub                                      Expansion Hub
 Motors                                           Motors
 control0 - outtake*                              expansion0 - plateEncoder*
 control1 - turret*                               expansion1 - intake
-control2 - rightFront                            expansion2 - leftFront
-control3 - rightBack                             expansion3 - leftBack
+control2 - rightFront *frontDeadWheel            expansion2 - leftFront
+control3 - rightBack *rightDeadWheel             expansion3 - leftBack *leftDeadWheel
 
 Servos                                           Servos
 control0 -                                       expansion0 -
