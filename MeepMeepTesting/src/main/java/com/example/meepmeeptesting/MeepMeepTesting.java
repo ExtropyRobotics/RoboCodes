@@ -42,27 +42,27 @@ public class MeepMeepTesting {
                         .waitSeconds(2.15)
 
                         // Spline to gather set 2
-//                        .splineToSplineHeading(new Pose2d(25, -22, Math.toRadians(-90)), Math.toRadians(-160))
-//                        .splineToConstantHeading(new Vector2d(11, -32.5), Math.toRadians(-90))
-//                        .setVelConstraint(new TranslationalVelocityConstraint(30))
-//                        .splineToConstantHeading(new Vector2d(11, -49), Math.toRadians(50))
-//                        .resetVelConstraint()
-//
+                        .splineToSplineHeading(new Pose2d(25, -22, Math.toRadians(-90)), Math.toRadians(-160))
+                        .splineToConstantHeading(new Vector2d(11, -32.5), Math.toRadians(-90))
+                        .setVelConstraint(new TranslationalVelocityConstraint(30))
+                        .splineToConstantHeading(new Vector2d(11, -49), Math.toRadians(50))
+                        .resetVelConstraint()
+
 //                        // Spline to launch set 2
-//                        .splineToSplineHeading(new Pose2d(50, -15, Math.toRadians(-155)), Math.toRadians(50))
-//                        .setTangent(Math.toRadians(-170))
-//                        .waitSeconds(2.15)
+                        .splineToSplineHeading(new Pose2d(50, -15, Math.toRadians(-155)), Math.toRadians(50))
+                        .setTangent(Math.toRadians(-170))
+                        .waitSeconds(2.15)
 
                         // Spline to get set 3
-//                        .splineToSplineHeading(new Pose2d(18.3, -22, Math.toRadians(-90)), Math.toRadians(-170))
-//                        .splineToConstantHeading(new Vector2d(-13, -32.5), Math.toRadians(-90))
-//                        .setVelConstraint(new TranslationalVelocityConstraint(30))
-//                        .splineToConstantHeading(new Vector2d(-13, -49), Math.toRadians(30))
-//                        .resetVelConstraint()
+                        .splineToSplineHeading(new Pose2d(18.3, -22, Math.toRadians(-90)), Math.toRadians(-170))
+                        .splineToConstantHeading(new Vector2d(-13, -32.5), Math.toRadians(-90))
+                        .setVelConstraint(new TranslationalVelocityConstraint(30))
+                        .splineToConstantHeading(new Vector2d(-13, -49), Math.toRadians(30))
+                        .resetVelConstraint()
 //
 //                        // Spline to launch set 3
-//                        .splineToSplineHeading(new Pose2d(50, -15, Math.toRadians(-155)), Math.toRadians(30))
-//                        .waitSeconds(2.15)
+                        .splineToSplineHeading(new Pose2d(50, -15, Math.toRadians(-155)), Math.toRadians(30))
+                        .waitSeconds(2.15)
 
                         .build());
 
@@ -178,8 +178,7 @@ public class MeepMeepTesting {
         meepMeep.setBackground(img)
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
-//                .addEntity(leftRed)
-                .addEntity(rightBlue)
+                .addEntity(leftBlue)
                 .start();
     }
 }

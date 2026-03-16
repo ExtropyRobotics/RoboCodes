@@ -15,39 +15,45 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 import java.util.List;
 
-@TeleOp(name = "TurretTuning")
+@TeleOp(name = "TurretTuning", group = "TeleOpTuning")
 public class turretTuning extends LinearOpMode {
 
     // PID
-    private double kP = 0.06;
+    private double kP = 0.02;
     private double kI = 0.0;
     private double kD = 0.0;
-    private double kF = 0.1;
+    private double kF = 0.0;
 
-    private double integral = 0;
-    private double lastError = 0;
-    private double lastOutput = 0;
+    private double turretIntegral = 0;
+    private double turretLastError = 0;
+    private double turretLastOutput = 0;
+    double error = 0;
 
     private ElapsedTime timer = new ElapsedTime();
 
     // limits
+    int MAX_TURRET_TICKS = 2100;
+    int MIN_TURRET_TICKS = -230;
     private static final double POSITION_TOLERANCE = 1.5;
     private static final double MAX_POWER = 1;
     private static final double MAX_OUTPUT_CHANGE = 0.05;
     private static final double INTEGRAL_LIMIT = 10;
+    int currentPos = 0;
 
     // memory
+    double tx = 0;
     private double lastTx = 0;
     private double lastTxVelocity = 0;
-    private boolean tagVisible = true;
-
+    double searchPower = 0;
     // hardware
     DcMotorEx turret;
     Limelight3A limelight;
     SampleMecanumDrive drive;
+    boolean unwinding = false;
 
     // toggles
     boolean kpUp, kpDown, kiUp, kiDown, kdUp, kdDown, kfUp, kfDown;
+
 
     @Override
     public void runOpMode() {
@@ -65,15 +71,14 @@ public class turretTuning extends LinearOpMode {
 
         waitForStart();
         timer.reset();
+        double dt = timer.seconds();
 
         while (opModeIsActive() && !isStopRequested()) {
+            currentPos = turret.getCurrentPosition();
 
-            drive.setWeightedDrivePower(new Pose2d(
-                    gamepad1.left_stick_y,
-                    -gamepad1.left_stick_x,
-                    gamepad1.right_stick_x
-            ));
-            drive.update();
+            lastTxVelocity = (error - lastTx) / dt;
+            searchPower =  0.4 * Math.signum(error);
+            if (dt <= 0) dt = 0.02;
 
             Pose2d poseVelocity = drive.getPoseVelocity();
             double robotOmega = 0;
@@ -81,11 +86,29 @@ public class turretTuning extends LinearOpMode {
                 robotOmega = poseVelocity.getHeading();
             }
 
+            if (unwinding) {
+                int error = -currentPos;
+
+                if (Math.abs(error) < 200) {
+                    turret.setPower(0);
+                    unwinding = false;
+                    turretIntegral = 0;
+                    turretLastError = 0;
+                } else {
+                    double power = 0.4 * Math.signum(error);
+                    turret.setPower(power);
+                }
+                continue;
+            }
+
+            if (currentPos >= MAX_TURRET_TICKS || currentPos <= MIN_TURRET_TICKS) {
+                unwinding = true;
+                continue;
+            }
+
             // limelight init
             LLResult result = limelight.getLatestResult();
             boolean currentlyVisible = false;
-
-            double tx = 0;
 
             if (result != null && result.isValid()) {
                 List<LLResultTypes.FiducialResult> tags = result.getFiducialResults();
@@ -95,52 +118,41 @@ public class turretTuning extends LinearOpMode {
                 }
             }
 
-            if (currentlyVisible) {
+            if (currentlyVisible && !unwinding) {
                 // normal PID control
-                tagVisible = true;
-
-                double error = tx;
-                double dt = timer.seconds();
                 timer.reset();
-                if (dt <= 0) dt = 0.02;
-
                 // update vel for future reacquisition
-                lastTxVelocity = (tx - lastTx) / dt;
-                lastTx = tx;
+                error = tx;
 
                 if (Math.abs(error) < POSITION_TOLERANCE) {
                     turret.setPower(0);
-                    resetController();
+                    turretIntegral = 0;
+                    turretLastError = 0;
+                    turretLastOutput = 0;
                 } else {
-                    integral += error * dt;
-                    integral = Math.max(-INTEGRAL_LIMIT, Math.min(INTEGRAL_LIMIT, integral));
-                    double derivative = (error - lastError) / dt;
+                    turretIntegral += error * dt;
+                    turretIntegral = Math.max(-INTEGRAL_LIMIT, Math.min(INTEGRAL_LIMIT, turretIntegral));
+                    double derivative = (error - turretLastError) / dt;
 
-                    double output = (kP * error) + (kI * integral) + (kD * derivative) + (kF * robotOmega);
+                    double output = (kP * error) + (kI * turretIntegral) + (kD * derivative) + (kF * robotOmega);
 
                     // clamp output
                     output = Math.max(-MAX_POWER, Math.min(MAX_POWER, output));
 
-                    double delta = output - lastOutput;
+                    double delta = output - turretLastOutput;
                     delta = Math.max(-MAX_OUTPUT_CHANGE, Math.min(MAX_OUTPUT_CHANGE, delta));
-                    output = lastOutput + delta;
+                    output = turretLastOutput + delta;
 
                     turret.setPower(output);
 
-                    lastError = error;
-                    lastOutput = output;
+                    turretLastError = error;
+                    turretLastOutput = output;
+                    lastTx = tx;
                 }
 
-            } else {
-                // if tag is lost, keep moving till found
-                if (tagVisible) {
-                    // keep last tx seen before apriltag out of frame
-                    // already stored in previous frame
-                }
-                tagVisible = false;
-
+            }
+            if (!currentlyVisible && !unwinding){
                 // continuous movement opposite the last observed tag motion
-                double searchPower = MAX_POWER * Math.signum(lastTxVelocity);
                 turret.setPower(searchPower);
             }
 
@@ -152,8 +164,13 @@ public class turretTuning extends LinearOpMode {
             telemetry.addData("kI", kI);
             telemetry.addData("kD", kD);
             telemetry.addData("kF", kF);
-            telemetry.addData("Error", lastError);
+            telemetry.addData("Error", turretLastError);
+            telemetry.addData("lastTx", lastTx);
+            telemetry.addData("dt", dt);
             telemetry.addData("TagVisible", currentlyVisible);
+            telemetry.addData("searchPower", searchPower);
+            telemetry.addData("unwinding", unwinding);
+            telemetry.addData("positon", turret.getCurrentPosition());
             telemetry.update();
         }
     }
@@ -187,11 +204,5 @@ public class turretTuning extends LinearOpMode {
         kI = Math.max(0, kI);
         kD = Math.max(0, kD);
         kF = Math.max(0, kF);
-    }
-
-    private void resetController() {
-        integral = 0;
-        lastError = 0;
-        lastOutput = 0;
     }
 }

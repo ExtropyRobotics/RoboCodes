@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.TeleOPs.oldRobot;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
-//@TeleOp (name = "TeleOP")
+@Disabled
+@TeleOp(name = "TeleOP")
 public class TeleOP extends LinearOpMode {
     private DcMotor launcher;
 

@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@TeleOp (name = "encoderTester")
+@TeleOp (name = "encoderTester", group = "Tester")
 public class encoderTester extends LinearOpMode {
     DcMotorEx motor;
     int targetPoz = 0;

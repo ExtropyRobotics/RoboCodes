@@ -1,8 +1,9 @@
-package org.firstinspires.ftc.teamcode.TeleOPs.newRobot;
+package org.firstinspires.ftc.teamcode.TeleOPs.activitati;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -12,7 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
-@TeleOp (name = "!GRADINITA ACTIVITATE")
+@TeleOp (name = "activitate gradinita", group = "Activitati")
 public class teleOPgradinita extends LinearOpMode {
     CRServo servoLeft = null;
     CRServo servoRight = null;
@@ -51,13 +52,13 @@ public class teleOPgradinita extends LinearOpMode {
             turret.setTargetPosition(turretTarget);
 
             drive.setWeightedDrivePower(new Pose2d(
-                    gamepad1.left_stick_y,
+                    -gamepad1.left_stick_y,
                     -gamepad1.left_stick_x,
-                    gamepad1.right_stick_x
+                    -gamepad1.right_stick_x
             ));
 
-            if(gamepad1.right_bumper) platePow = 1;
-            if(gamepad1.left_bumper) platePow = -1;
+            if(gamepad1.right_bumper) platePow = 0.5;
+            if(gamepad1.left_bumper) platePow = -0.5;
             if(gamepad1.y) platePow = 0; // △
 
 

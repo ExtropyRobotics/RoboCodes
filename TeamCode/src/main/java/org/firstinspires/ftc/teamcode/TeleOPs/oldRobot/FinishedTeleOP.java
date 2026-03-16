@@ -21,8 +21,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.List;
 
-@Disabled
-@TeleOp (name = "!TeleOP2")
+@TeleOp (name = "!TeleOP2", group = "OldRobot")
 
 public class FinishedTeleOP extends LinearOpMode{
     public enum Intake_Sensor {

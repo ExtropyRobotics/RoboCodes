@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@TeleOp (name = "servoPlate")
+@TeleOp (name = "servoPlate", group = "Tester")
 public class twoServoPlate extends LinearOpMode {
     CRServo servoLeft = null;
     CRServo servoRight = null;

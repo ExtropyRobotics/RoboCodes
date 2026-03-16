@@ -15,8 +15,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-@Disabled
-@TeleOp (name = "!OneController")
+@TeleOp (name = "!OneController", group = "OldRobot")
 
 public class  teleOPoneController extends LinearOpMode{
 

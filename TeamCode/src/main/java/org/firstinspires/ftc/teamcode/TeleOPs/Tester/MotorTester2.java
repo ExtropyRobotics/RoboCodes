@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@TeleOp (name = "MotorTester2")
+@TeleOp (name = "MotorTester", group = "Tester")
 public class MotorTester2 extends LinearOpMode {
     DcMotorEx motor;
     @Override

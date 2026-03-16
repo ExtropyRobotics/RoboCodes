@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@TeleOp (name = "newPlateTest")
+@TeleOp (name = "newPlateTest", group = "Tester")
 public class newPlateTest extends LinearOpMode {
     DcMotorEx motor;
     DcMotor plate;
