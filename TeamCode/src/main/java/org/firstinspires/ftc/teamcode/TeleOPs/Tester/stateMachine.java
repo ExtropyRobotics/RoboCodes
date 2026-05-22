@@ -3,55 +3,74 @@ package org.firstinspires.ftc.teamcode.TeleOPs.Tester;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Disabled
+//@Disabled
 @TeleOp (name = "stateMachine")
 public class stateMachine extends LinearOpMode {
 
-    public enum states {
-        IDLE,
-        ROTATE
-    }
-
     ElapsedTime timer = new ElapsedTime();
-    states state = states.IDLE;
-    DcMotor motor;
+    CRServo plateServoLeft;
+    CRServo plateServoRight;
+    DcMotorEx plateEncoder;
     boolean toggle = false;
+    int plateTargetPosition = 0;
+    double maxPlatePower = 1;
+
+    int sumPlate = 0;
+    int encoderPos = 0;
+    double plateError = 0;
+
+    double platePow = 1;
+    double plateP = 0.0002;
+    double plateI = 0.00000;
+    double plateD = 0.0008;
+    int desiredPos = 0;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        motor = hardwareMap.get(DcMotor.class, "servo");
+        plateServoLeft = hardwareMap.get(CRServo.class, "plateServoLeft");
+        plateServoRight = hardwareMap.get(CRServo.class, "plateServoRight");
+        plateEncoder = hardwareMap.get(DcMotorEx.class, "intake");
+        plateEncoder.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+
         timer.reset();
 
         waitForStart();
 
         while(opModeIsActive() && !isStopRequested()){
 
-            switch(state){
+            double plateDt = timer.seconds();
 
-                case IDLE:
+            encoderPos = -plateEncoder.getCurrentPosition();
+            plateError = plateTargetPosition - encoderPos;
+            sumPlate += (int) (plateError * plateDt);
+            double deriv = (plateTargetPosition - encoderPos - plateError);
 
-                    motor.setPower(0);
-                    break;
+            platePow = plateP*plateError + plateI*sumPlate + deriv* plateD;
 
-                case ROTATE:
+            plateTargetPosition = desiredPos;
 
-                    motor.setPower(1);
-                    if(timer.seconds() > 3) state = states.IDLE;
-                    break;
-            }
+            if(gamepad1.a){
+                if(!toggle){
+                    desiredPos -= 8192*2/3;
 
-            if(gamepad1.y && !toggle){
-                state = states.ROTATE;
-                timer.reset();
-                toggle = true;
+                    toggle = true;
+                }
             } else toggle = false;
 
-            telemetry.addData("state:", state);
-            telemetry.addData("timer", timer.seconds());
+            if(platePow < -maxPlatePower) platePow = -maxPlatePower;
+            if(platePow > maxPlatePower) platePow = maxPlatePower;
+
+            plateServoRight.setPower(platePow);
+            plateServoLeft.setPower(platePow);
+
+            telemetry.addData("pos:", desiredPos);
             telemetry.update();
         }
     }
