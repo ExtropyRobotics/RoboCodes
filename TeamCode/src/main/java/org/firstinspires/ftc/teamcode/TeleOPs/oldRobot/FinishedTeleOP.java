@@ -21,6 +21,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.List;
 
+@Disabled
 @TeleOp (name = "!TeleOP2", group = "OldRobot")
 
 public class FinishedTeleOP extends LinearOpMode{

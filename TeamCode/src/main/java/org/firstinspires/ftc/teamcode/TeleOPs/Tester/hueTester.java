@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.TeleOPs.Tester;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
+@Disabled
 @TeleOp (name = "hueTester", group = "Tester")
 public class hueTester extends LinearOpMode {
     NormalizedColorSensor colorSensor = null;

@@ -30,10 +30,9 @@ public class teleOpSomes extends LinearOpMode {
     boolean shootToggle = false; // Used for moving plate in the shooting direction.
     boolean reverseToggle = false; // Used for reversing the intake.
     boolean storeToggle = false; // Used for moving plate in the storing direction.
-    boolean reverseOnce = false; // Reverses intake ONCE at thet start of teleOP for whatever reason.
-    //TODO: remove this aswell (why the fuck is this here v2)
+    boolean reverseOnce = false; // Reverses intake ONCE at the start of teleOP.
 
-    // Powers and positions
+    // Powers & positions
     double maxPlatePower = 0.7;
     double platePow = 1;
     int desiredPos = 0;
@@ -74,7 +73,6 @@ public class teleOpSomes extends LinearOpMode {
             turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             // Sets intake power to 1 at the start of teleOP.
-            //TODO: remove this and test (why the fuck is this here)
             if(!reverseOnce){
                 intake.setPower(1);
                 reverseOnce = true;
@@ -125,7 +123,7 @@ public class teleOpSomes extends LinearOpMode {
                 platePow = 0;
             } else platePow = signum(diff) * maxPlatePower;
 
-            // Actually give the plate servos the power.
+            // Power the plate servos.
             plateServoRight.setPower(platePow);
             plateServoLeft.setPower(platePow);
         }

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.TeleOPs.oldRobot;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -20,6 +21,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.List;
 
+@Disabled
 @TeleOp (name = "!TeleopZALAU", group = "OldRobot")
 
 public class teleopZalau extends LinearOpMode{

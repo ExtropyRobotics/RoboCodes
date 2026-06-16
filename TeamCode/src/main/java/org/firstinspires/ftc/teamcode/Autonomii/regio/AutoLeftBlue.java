@@ -1,10 +1,9 @@
-package org.firstinspires.ftc.teamcode.Autonomii;
+package org.firstinspires.ftc.teamcode.Autonomii.regio;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.constraints.TranslationalVelocityConstraint;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -15,6 +14,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
@@ -22,9 +22,35 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 import java.util.List;
 @Disabled
-@Autonomous (name = "!AutoLeftRED")
+@Autonomous (name = "!AutoLeftBLUE")
 
-public class AutoLeftRed extends LinearOpMode {
+public class AutoLeftBlue extends LinearOpMode {
+    double flywheelF = 0;
+    double flywheelP = 0;
+    DcMotorEx flywheelMotor;
+
+    public void turretObeliskStop(){
+
+    }
+    public void sensorStart() {
+
+    }
+
+    public void getGoalDistance(){
+
+    }
+
+    public void turretStart() {
+
+    }
+
+    public void getPlatePosition(){
+        // Average encoder method
+    }
+
+    public void plateCalculations(){
+
+    }
     public void movePlate(int plateTarget, int power){
         plate.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         plate.setPower(power);
@@ -45,10 +71,10 @@ public class AutoLeftRed extends LinearOpMode {
     Limelight3A limelight;
     LLResult llResult;
     int aprilTagID = 0;
-    //    boolean firstAprilTag = false;
+//    boolean firstAprilTag = false;
     NormalizedColorSensor colorSensor;
     DistanceSensor distanceSensor;
-    Pose2d startingPose = new Pose2d(-51, 44, Math.toRadians(155));
+    Pose2d startingPose = new Pose2d(-51, -44, Math.toRadians(-125));
 
 
     class autoThread implements Runnable {
@@ -68,19 +94,32 @@ public class AutoLeftRed extends LinearOpMode {
             }
 
             while (opModeIsActive() && !isStopRequested()) {
-//                llResult = limelight.getLatestResult();
+                plateCalculations();
+                llResult = limelight.getLatestResult();
 
                 turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-//                if (llResult != null && llResult.isValid()) {
-//                    limelight.pipelineSwitch(0);
-//                    List<LLResultTypes.FiducialResult> fiducialResults = llResult.getFiducialResults();
-//                    for (LLResultTypes.FiducialResult fr : fiducialResults) {
-//                        telemetry.addData("ID", fr.getFiducialId());
-//                        aprilTagID = fr.getFiducialId();
-//                        telemetry.update();
-//                    }
-//                }
+                if (llResult != null && llResult.isValid()) {
+                    limelight.pipelineSwitch(0);
+                    List<LLResultTypes.FiducialResult> fiducialResults = llResult.getFiducialResults();
+                    for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                        telemetry.addData("ID", fr.getFiducialId());
+                        aprilTagID = fr.getFiducialId();
+                        telemetry.update();
+                    }
+                }
+                if(aprilTagID != 0){
+                    turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    turret.setTargetPosition(600);
+                    limelight.pipelineSwitch(1);
+                    turretObeliskStop();
+                    turretStart();
+                }
+
+                PIDFCoefficients pidfCoefficients
+                = new PIDFCoefficients(flywheelP, 0, 0, flywheelF);
+                flywheelMotor.setPIDFCoefficients(DcMotor.
+                        RunMode.RUN_USING_ENCODER, pidfCoefficients);
             }
         }
     }
@@ -111,10 +150,10 @@ public class AutoLeftRed extends LinearOpMode {
                     shooter.setVelocity(motorRPM);
                     lift.setPosition(0.55);
                 })
-                .setTangent(Math.toRadians(-45))
-                .splineToConstantHeading(new Vector2d(-18,8),Math.toRadians(-45))
+                .setTangent(Math.toRadians(45))
+                .splineToConstantHeading(new Vector2d(-18,-8),Math.toRadians(45))
                 .UNSTABLE_addTemporalMarkerOffset(1, ()->{
-                    movePlate(rotatePlate + 237, 1);
+                    movePlate(237, 1);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(3, ()->{
                     lift.setPosition(liftUp);

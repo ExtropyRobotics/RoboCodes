@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
+@Disabled
 @TeleOp (name = "activitate gradinita", group = "Activitati")
 public class teleOPgradinita extends LinearOpMode {
     CRServo servoLeft = null;
