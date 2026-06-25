@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/FtcRobotController/RoboCodes.FtcRobotController.iml" filepath="$PROJECT_DIR$/.idea/modules/FtcRobotController/RoboCodes.FtcRobotController.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/FtcRobotController/RoboCodes.FtcRobotController.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/FtcRobotController/RoboCodes.FtcRobotController.androidTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/FtcRobotController/RoboCodes.FtcRobotController.main.iml" filepath="$PROJECT_DIR$/.idea/modules/FtcRobotController/RoboCodes.FtcRobotController.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/FtcRobotController/RoboCodes.FtcRobotController.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/FtcRobotController/RoboCodes.FtcRobotController.unitTest.iml" />
