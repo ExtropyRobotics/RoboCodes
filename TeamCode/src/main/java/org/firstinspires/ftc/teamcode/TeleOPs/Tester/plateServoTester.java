@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 
-@Disabled
 @TeleOp (name = "plateServoTester", group = "Tester")
 public class plateServoTester extends LinearOpMode {
     CRServo servo1 = null;

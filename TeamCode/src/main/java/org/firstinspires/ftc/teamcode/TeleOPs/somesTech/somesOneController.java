@@ -10,11 +10,21 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 @TeleOp (name = "one controller somes")
 public class somesOneController extends LinearOpMode {
+
+    // State list class for state machine
+    public enum StateList{
+        Idle,
+        Outtake,
+    }
+    StateList currentState = StateList.Idle; // State changes on driver input
+    ElapsedTime shootingTimer = new ElapsedTime(); // Timer used by state machine
 
     // Drive
     SampleMecanumDrive drive; // basic drive
@@ -33,11 +43,13 @@ public class somesOneController extends LinearOpMode {
     boolean storeToggle = false; // Used for moving plate in the storing direction.
     boolean farToggle =  false; // Used for switching outtake motor velocity.
     boolean closeToggle =  false; // Used for switching outtake motor velocity.
+    boolean stateMachineToggle = false; // Used for state machine button
 
     // Powers & positions
     int desiredPos = 0; // ideal plate position
-    double maxPlatePower = 0.7;
-    double platePow = 1; // calculated plate power (-0.7 or 0.7)
+    int plateTolerance = 500;
+    double maxPlatePower = 1;
+    double platePow = 1; // calculated plate power (-maxPlatePower or maxPlatePower)
     double intakePower = 1; // is reversed by X button
     double diff = 0; // used for calculating difference between ideal plate position and real plate position
     double servoPoz = 0.63; // constant for both close and far
@@ -45,13 +57,19 @@ public class somesOneController extends LinearOpMode {
     double farVelocity = 1700; // optimal velocity for shooting from afar
     double closeVelocity = 1300; // optimal velocity
 
+    // State machine logic & values
+    double previousVelocity = 0; // stored velocity value before state machine goes into outtake state
+    boolean stateShootToggle = false;
+    boolean stateContinueToggle = false;
+    boolean increaseVeloToggle = false;
+
+    /* These booleans make it so the if statements only happen once,
+    preventing mishaps throughout the entirety of the outtake state */
 
     @Override
     public void runOpMode() throws InterruptedException {
 
         drive = new SampleMecanumDrive(hardwareMap);
-
-        // HardwareMap in correlation with Configuratie.txt (I hope)
 
         outtake = hardwareMap.get(DcMotorEx.class, "outtake2");
 
@@ -124,7 +142,7 @@ public class somesOneController extends LinearOpMode {
                 }
             } else farToggle = false;
 
-            // Change outtake motor velocity to launch close.
+            // Change outtake motor velocity to launch from close range.
             if(gamepad1.dpad_down){
                 if(!closeToggle){
                     motorVelocity = closeVelocity;
@@ -132,22 +150,84 @@ public class somesOneController extends LinearOpMode {
                 }
             } else closeToggle = false;
 
+            // Run state machine, launching 3 artefacts in rapid succession
+            if(gamepad1.y){
+                if(!stateMachineToggle){
+                    currentState = StateList.Outtake;
+                    stateMachineToggle = true;
+                }
+            } else stateMachineToggle = false;
+
+
             // == PLATE CALCULATIONS ==
 
             // Calculates the difference between the target position and the actual position.
             diff = desiredPos - plateEncoder.getCurrentPosition();
 
-            /* If the calculated difference is higher than 500 ticks (the sum of 250 and 250 from the formula)
+            /* If the calculated difference is higher than 500 ticks (plateTolerance value),
             moves the plate in the corresponding direction making the difference as small as possible.
             The 500 ticks tolerance is absolutely necessary to reduce oscillations. */
 
-            if(plateEncoder.getCurrentPosition() > desiredPos - 250 && plateEncoder.getCurrentPosition() < desiredPos + 250){
+            if(plateEncoder.getCurrentPosition() > desiredPos - (plateTolerance/2) && plateEncoder.getCurrentPosition() < desiredPos + (plateTolerance/2)){
                 platePow = 0;
             } else platePow = signum(diff) * maxPlatePower;
 
             // Power the plate servos.
             plateServoRight.setPower(platePow);
             plateServoLeft.setPower(platePow);
+
+
+            // == STATE MACHINE ==
+
+            /* Using state machine to increase RPM precisely while shooting, decreasing time wasted in TeleOP.
+            This method is an alternative to regular timed shooting */
+
+            // !! This might not work as well if battery voltage is low
+            // !! Only works if the robot has 3 artefacts, any less and it will severely overshoot
+
+            switch (currentState){
+
+                case Idle:
+
+                    previousVelocity = motorVelocity; // Storing velocity value before outtake state happens
+                    shootingTimer.reset(); // Keeps timer at 0 while idle
+
+                    // Keeps toggles false while idle
+                    stateShootToggle = false;
+                    increaseVeloToggle = false;
+                    stateContinueToggle = false;
+
+                    break;
+
+                case Outtake:
+
+                    // Shoots first artefact
+                    if(shootingTimer.seconds() >= 0 && !stateShootToggle) {
+                        desiredPos -= 8192/3;
+                        stateShootToggle = true;
+                    }
+
+                    // Increases RPM to compensate for velocity lost by friction
+                    if(shootingTimer.seconds() >= 0.15 && !increaseVeloToggle){
+                        motorVelocity = farVelocity;
+                        increaseVeloToggle = true;
+                    }
+
+                    // Shoots last 2 artefacts
+                    if(shootingTimer.seconds() >= 0.2 && !stateContinueToggle){
+                        desiredPos -= 8192*2/3;
+                        stateContinueToggle = true;
+                    }
+
+                    // Goes back to idle state after all artefacts are launched
+                    if(shootingTimer.seconds() >= 0.55){
+                        motorVelocity = previousVelocity; // Sets velocity back to stored value
+                        currentState = StateList.Idle;
+                    }
+
+                    break;
+            }
+
         }
     }
 }
