@@ -10,12 +10,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
-@TeleOp (name = "one controller somes")
+@TeleOp (name = "one Controller SOMES (SOLO)")
 public class somesOneController extends LinearOpMode {
 
     // State list class for state machine
@@ -59,8 +58,8 @@ public class somesOneController extends LinearOpMode {
 
     // State machine logic & values
     double previousVelocity = 0; // stored velocity value before state machine goes into outtake state
-    boolean stateShootToggle = false;
-    boolean stateContinueToggle = false;
+    boolean firstArtefactToggle = false;
+    boolean remainingArtefactsToggle = false;
     boolean increaseVeloToggle = false;
 
     /* These booleans make it so the if statements only happen once,
@@ -182,45 +181,46 @@ public class somesOneController extends LinearOpMode {
             /* Using state machine to increase RPM precisely while shooting, decreasing time wasted in TeleOP.
             This method is an alternative to regular timed shooting */
 
-            // !! This might not work as well if battery voltage is low
+            // !! This might not work very well if battery voltage is low
             // !! Only works if the robot has 3 artefacts, any less and it will severely overshoot
 
             switch (currentState){
 
                 case Idle:
 
-                    previousVelocity = motorVelocity; // Storing velocity value before outtake state happens
                     shootingTimer.reset(); // Keeps timer at 0 while idle
+                    previousVelocity = motorVelocity; // Storing velocity value before outtake state happens
 
                     // Keeps toggles false while idle
-                    stateShootToggle = false;
+                    firstArtefactToggle = false;
                     increaseVeloToggle = false;
-                    stateContinueToggle = false;
+                    remainingArtefactsToggle = false;
 
                     break;
 
                 case Outtake:
 
                     // Shoots first artefact
-                    if(shootingTimer.seconds() >= 0 && !stateShootToggle) {
+                    if(shootingTimer.seconds() >= 0 && !firstArtefactToggle) {
+                        motorVelocity = previousVelocity - 200;
                         desiredPos -= 8192/3;
-                        stateShootToggle = true;
+                        firstArtefactToggle = true;
                     }
 
                     // Increases RPM to compensate for velocity lost by friction
-                    if(shootingTimer.seconds() >= 0.15 && !increaseVeloToggle){
-                        motorVelocity = farVelocity;
+                    if(shootingTimer.seconds() >= 0.2 && !increaseVeloToggle){
+                        motorVelocity = previousVelocity + 800;
                         increaseVeloToggle = true;
                     }
 
                     // Shoots last 2 artefacts
-                    if(shootingTimer.seconds() >= 0.2 && !stateContinueToggle){
+                    if(shootingTimer.seconds() >= 0.25 && !remainingArtefactsToggle){
                         desiredPos -= 8192*2/3;
-                        stateContinueToggle = true;
+                        remainingArtefactsToggle = true;
                     }
 
                     // Goes back to idle state after all artefacts are launched
-                    if(shootingTimer.seconds() >= 0.55){
+                    if(shootingTimer.seconds() >= 0.5){
                         motorVelocity = previousVelocity; // Sets velocity back to stored value
                         currentState = StateList.Idle;
                     }

@@ -66,7 +66,7 @@ public class MeepMeepTesting {
                         .splineToSplineHeading(new Pose2d(-25, -25, Math.toRadians(40)), Math.toRadians(100))
 
                         .build());
-        RoadRunnerBotEntity farBlue = new DefaultBotBuilder(meepMeep)
+        RoadRunnerBotEntity farBlueMatei = new DefaultBotBuilder(meepMeep)
                 .setConstraints(74.6044409417, 30, 5.814271363239445, Math.toRadians(180), 11.2)
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(startingFarBlue)
                         .setTangent(Math.toRadians(180))
@@ -95,8 +95,15 @@ public class MeepMeepTesting {
                         .waitSeconds(17)
                         .build());
 
+        RoadRunnerBotEntity farBlue = new DefaultBotBuilder(meepMeep)
+                .setConstraints(74.6044409417, 30, 5.814271363239445, Math.toRadians(180), 11.2)
+                .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(startingFarBlue)
+                        .setTangent(Math.toRadians(180))
+                        .splineToSplineHeading(new Pose2d(55, -10, Math.toRadians(31)), Math.toRadians(-120))
+                        .build());
 
-        Image img = null;
+
+                        Image img = null;
         //TODO: download the field from https://www.reddit.com/r/FTC/comments/1nalob0/decode_custom_field_images_meepmeep_compatible/
         //      and replace the path below with the path of your file
         try { img = ImageIO.read(new File("C:\\Users\\cecla\\Documents\\GitHub\\RoboCodes\\MeepMeepTesting\\src\\main\\resources\\background\\season-2025-decode\\field-2025-official.png")); }
@@ -106,6 +113,7 @@ public class MeepMeepTesting {
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
 //                .addEntity(closeBlue)
+//                .addEntity(farBlueMatei)
                 .addEntity(farBlue)
                 .start();
     }
