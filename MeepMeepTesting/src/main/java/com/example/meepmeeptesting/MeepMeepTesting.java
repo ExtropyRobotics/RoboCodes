@@ -18,103 +18,255 @@ public class MeepMeepTesting {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(770);
         Pose2d startingCloseBlue = new Pose2d(-50, -48, Math.toRadians(60));
+        Pose2d startingCloseRed = new Pose2d(-50, 48, Math.toRadians(-60));
         Pose2d startingFarBlue = new Pose2d(61, -8, 0);
+        Pose2d startingFarRed = new Pose2d(61, 8, 0);
 
         RoadRunnerBotEntity closeBlue = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(74.6044409417, 30, 5.814271363239445, Math.toRadians(180), 11.2)
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(startingCloseBlue)
+                        // Spline to first shooting position
                         .setTangent(Math.toRadians(45))
-                        .splineToSplineHeading(new Pose2d(-25, -25, Math.toRadians(40)), Math.toRadians(45))
+                        .splineToSplineHeading(new Pose2d(-18, -18, Math.toRadians(50)), Math.toRadians(45))
 
-                        .waitSeconds(1)
+                        // Give robot time to shoot
+                        .waitSeconds(1.2)
 
-                        .splineToSplineHeading(new Pose2d(-12, -25, Math.toRadians(-70)), Math.toRadians(-90))
+                        // == FIRST SET (2) ==
+
+                        // Spline to the first set
+                        .splineToSplineHeading(new Pose2d(-13, -19, Math.toRadians(-70)), Math.toRadians(-90))
                         .setVelConstraint(new TranslationalVelocityConstraint(13))
-                        .splineToConstantHeading(new Vector2d(-12, -30), Math.toRadians(-90))
-                        .splineToConstantHeading(new Vector2d(-12, -48), Math.toRadians(-90))
+                        .splineToConstantHeading(new Vector2d(-10, -30), Math.toRadians(-90))
+                        .splineToConstantHeading(new Vector2d(-10, -45), Math.toRadians(-90))
                         .resetVelConstraint()
+                        .splineToSplineHeading(new Pose2d(-13, -57, Math.toRadians(-90)), Math.toRadians(90))
 
+                        // Spline to shooting position.
+                        .splineToSplineHeading(new Pose2d(-20, -18, Math.toRadians(40)), Math.toRadians(110))
 
-                        .setTangent(Math.toRadians(110))
-                        .splineToSplineHeading(new Pose2d(-20, -25, Math.toRadians(40)), Math.toRadians(110))
+                        // Give robot time to shoot
+                        .waitSeconds(1.2)
 
-                        .waitSeconds(1)
+                        // == SECOND SET (3) ==
 
+                        // Spline to second set
                         .setTangent(Math.toRadians(0))
-                        .splineToSplineHeading(new Pose2d(8, -25, Math.toRadians(-70)), Math.toRadians(0))
-                        .splineToConstantHeading(new Vector2d(15, -30), Math.toRadians(-90))
+                        .splineToSplineHeading(new Pose2d(4, -17, Math.toRadians(-70)), Math.toRadians(0))
+                        .splineToConstantHeading(new Vector2d(8, -17), Math.toRadians(0))
+                        .splineToConstantHeading(new Vector2d(13, -20), Math.toRadians(-90))
                         .setVelConstraint(new TranslationalVelocityConstraint(13))
-                        .splineToConstantHeading(new Vector2d(15, -48), Math.toRadians(-90))
+                        .splineToConstantHeading(new Vector2d(15.5, -53), Math.toRadians(-90))
                         .resetVelConstraint()
+                        .splineToSplineHeading(new Pose2d(14, -63, Math.toRadians(-90)), Math.toRadians(90))
+                        .splineToConstantHeading(new Vector2d(14, -50), Math.toRadians(90))
 
-                        .setTangent(Math.toRadians(145))
-                        .splineToSplineHeading(new Pose2d(-25, -25, Math.toRadians(40)), Math.toRadians(145))
+                        // Spline to shooting position
+                        .splineToSplineHeading(new Pose2d(-20, -18, Math.toRadians(40)), Math.toRadians(125))
 
-                        .waitSeconds(1)
+                        // Give robot time to shoot
+                        .waitSeconds(1.2)
 
+                        // == THIRD SET (4) ==
+
+                        // Spline to third set
                         .setTangent(Math.toRadians(0))
                         .splineToSplineHeading(new Pose2d(29, -25, Math.toRadians(-70)), Math.toRadians(0))
-                        .splineToConstantHeading(new Vector2d(35, -30), Math.toRadians(-90))
+                        .splineToConstantHeading(new Vector2d(34, -25), Math.toRadians(-90))
                         .setVelConstraint(new TranslationalVelocityConstraint(13))
-                        .splineToConstantHeading(new Vector2d(35, -50), Math.toRadians(-90))
+                        .splineToConstantHeading(new Vector2d(34, -53), Math.toRadians(-90))
                         .resetVelConstraint()
+                        .splineToSplineHeading(new Pose2d(34, -63, Math.toRadians(-90)), Math.toRadians(90))
 
-                        .setTangent(Math.toRadians(90))
-                        .splineToSplineHeading(new Pose2d(2, -48, Math.toRadians(0)), Math.toRadians(-135))
+                        // Spline to open gate
+                        .splineToSplineHeading(new Pose2d(2, -48, Math.toRadians(0)), Math.toRadians(-90))
 
-                        .splineToSplineHeading(new Pose2d(-25, -25, Math.toRadians(40)), Math.toRadians(100))
+                        // Spline to shooting position
+                        .splineToSplineHeading(new Pose2d(-20, -18, Math.toRadians(25)), Math.toRadians(100))
 
                         .build());
-        RoadRunnerBotEntity farBlueMatei = new DefaultBotBuilder(meepMeep)
+
+        RoadRunnerBotEntity closeRed = new DefaultBotBuilder(meepMeep)
+                // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setConstraints(74.6044409417, 30, 5.814271363239445, Math.toRadians(180), 11.2)
-                .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(startingFarBlue)
-                        .setTangent(Math.toRadians(180))
-                        .splineToConstantHeading(new Vector2d(54, -8),Math.toRadians(180))
-                        .splineToConstantHeading(new Vector2d(50, -8), Math.toRadians(-31))
-                        .turn(Math.toRadians(31))
-                        .setTangent(Math.toRadians(0))
-                        .waitSeconds(3)
-                        .splineToSplineHeading(new Pose2d(50 ,-58, Math.toRadians(-60)),Math.toRadians(-90))
-                        .setVelConstraint(new TranslationalVelocityConstraint(13))
-                        .splineToConstantHeading(new Vector2d(60, -59),Math.toRadians(0))
-                        .resetVelConstraint()
-                        .splineToSplineHeading(new Pose2d(61, -62, Math.toRadians(-90)), Math.toRadians(-90))
-                        .setTangent(Math.toRadians(95))
-                        .splineToSplineHeading(new Pose2d(50, -8, Math.toRadians(31)),Math.toRadians(95))
-                        .waitSeconds(3)
-                        .setTangent(Math.toRadians(180))
-                        .splineToSplineHeading(new Pose2d(35, -28, Math.toRadians(-90)), Math.toRadians(-90))
-                        .setVelConstraint(new TranslationalVelocityConstraint(13))
-                        .splineToConstantHeading(new Vector2d(35, -51), Math.toRadians(-90))
-                        .resetVelConstraint()
-                        .setTangent(Math.toRadians(65))
-                        .splineToSplineHeading(new Pose2d(50, -8, Math.toRadians(31)), Math.toRadians(65))
-                        .waitSeconds(3)
+                .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(startingCloseRed)
+                        // Spline to first shooting position
+                        .setTangent(Math.toRadians(-45))
+                        .splineToSplineHeading(new Pose2d(-18, 18, Math.toRadians(-50)), Math.toRadians(-45))
 
-                        .waitSeconds(17)
+                        // Give robot time to shoot
+                        .waitSeconds(1.2)
+
+                        // == FIRST SET (2) ==
+
+                        // Spline to the first set
+                        .splineToSplineHeading(new Pose2d(-13, 19, Math.toRadians(70)), Math.toRadians(90))
+                        .setVelConstraint(new TranslationalVelocityConstraint(13))
+                        .splineToConstantHeading(new Vector2d(-10, 30), Math.toRadians(90))
+                        .splineToConstantHeading(new Vector2d(-10, 45), Math.toRadians(90))
+                        .resetVelConstraint()
+                        .splineToSplineHeading(new Pose2d(-13, 57, Math.toRadians(90)), Math.toRadians(-90))
+
+                        // Spline to shooting position.
+                        .splineToSplineHeading(new Pose2d(-20, 18, Math.toRadians(-40)), Math.toRadians(-110))
+
+                        // Give robot time to shoot
+                        .waitSeconds(1.2)
+
+                        // == SECOND SET (3) ==
+
+                        // Spline to second set
+                        .setTangent(Math.toRadians(0))
+                        .splineToSplineHeading(new Pose2d(4, 17, Math.toRadians(70)), Math.toRadians(0))
+                        .splineToConstantHeading(new Vector2d(8, 17), Math.toRadians(0))
+                        .splineToConstantHeading(new Vector2d(13, 20), Math.toRadians(90))
+                        .setVelConstraint(new TranslationalVelocityConstraint(13))
+                        .splineToConstantHeading(new Vector2d(15.5, 53), Math.toRadians(90))
+                        .resetVelConstraint()
+                        .splineToSplineHeading(new Pose2d(14, 63, Math.toRadians(90)), Math.toRadians(-90))
+                        .splineToConstantHeading(new Vector2d(14, 50), Math.toRadians(-90))
+
+                        // Spline to shooting position
+                        .splineToSplineHeading(new Pose2d(-20, 18, Math.toRadians(-40)), Math.toRadians(-125))
+
+                        // Give robot time to shoot
+                        .waitSeconds(1.2)
+
+                        // == THIRD SET (4) ==
+
+                        // Spline to third set
+                        .setTangent(Math.toRadians(0))
+                        .splineToSplineHeading(new Pose2d(29, 25, Math.toRadians(70)), Math.toRadians(0))
+                        .splineToConstantHeading(new Vector2d(34, 25), Math.toRadians(90))
+                        .setVelConstraint(new TranslationalVelocityConstraint(13))
+                        .splineToConstantHeading(new Vector2d(34, 53), Math.toRadians(90))
+                        .resetVelConstraint()
+                        .splineToSplineHeading(new Pose2d(34, 63, Math.toRadians(90)), Math.toRadians(-90))
+
+                        // Spline to open gate
+                        .splineToSplineHeading(new Pose2d(2, 48, Math.toRadians(0)), Math.toRadians(90))
+
+                        // Spline to shooting position
+                        .splineToSplineHeading(new Pose2d(-20, 18, Math.toRadians(-25)), Math.toRadians(-100))
+
                         .build());
+
 
         RoadRunnerBotEntity farBlue = new DefaultBotBuilder(meepMeep)
                 .setConstraints(74.6044409417, 30, 5.814271363239445, Math.toRadians(180), 11.2)
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(startingFarBlue)
+
+                        // Spline to shoot preload
                         .setTangent(Math.toRadians(180))
                         .splineToSplineHeading(new Pose2d(55, -10, Math.toRadians(31)), Math.toRadians(-120))
+
+                        // Give robot time to shoot
+                        .waitSeconds(3)
+
+                        // Spline to human player
+                        .setTangent(Math.toRadians(-90))
+                        .splineToSplineHeading(new Pose2d(55, -50, Math.toRadians(-75)), Math.toRadians(-90))
+                        .splineToConstantHeading(new Vector2d(55, -56), Math.toRadians(-90))
+                        .setTangent(Math.toRadians(0))
+                        .setVelConstraint(new TranslationalVelocityConstraint(10))
+                        .splineToConstantHeading(new Vector2d(60, -56), Math.toRadians(0))
+                        .splineToSplineHeading(new Pose2d(61, -56, Math.toRadians(-90)), Math.toRadians(0))
+                        .splineToConstantHeading(new Vector2d(63, -63), Math.toRadians(-90))
+                        .resetVelConstraint()
+
+                        // Spline to shooting position
+                        .setTangent(Math.toRadians(110))
+                        .splineToSplineHeading(new Pose2d(55, -40, Math.toRadians(31)), Math.toRadians(90))
+                        .splineToConstantHeading(new Vector2d(55, -10), Math.toRadians(90))
+
+                        // Give robot time to shoot
+                        .waitSeconds(3)
+
+                        // Spline to set #3
+                        .setTangent(Math.toRadians(-145))
+                        .splineToSplineHeading(new Pose2d(36, -23, Math.toRadians(-70)), Math.toRadians(-145))
+                        .setVelConstraint(new TranslationalVelocityConstraint(13))
+                        .splineToConstantHeading(new Vector2d(34, -25), Math.toRadians(-90))
+                        .setVelConstraint(new TranslationalVelocityConstraint(13))
+                        .splineToConstantHeading(new Vector2d(34, -53), Math.toRadians(-90))
+                        .resetVelConstraint()
+                        .splineToSplineHeading(new Pose2d(34, -63, Math.toRadians(-90)), Math.toRadians(90))
+
+                        // Spline to shooting position
+                        .setTangent(Math.toRadians(70))
+                        .splineToSplineHeading(new Pose2d(55, -10, Math.toRadians(31)), Math.toRadians(70))
+
+                        .build());
+
+        RoadRunnerBotEntity farRed = new DefaultBotBuilder(meepMeep)
+                .setConstraints(74.6044409417, 30, 5.814271363239445, Math.toRadians(180), 11.2)
+                .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(startingFarRed)
+
+                        // == PRELOAD (1) ==
+
+                        // Spline to shoot preload
+                        .setTangent(Math.toRadians(180))
+                        .splineToSplineHeading(new Pose2d(55, 10, Math.toRadians(-31)), Math.toRadians(120))
+
+                        // Give robot time to shoot
+                        .waitSeconds(3)
+
+                        // HUMAN PLAYER == (2) ==
+
+                        // Spline to human player
+                        .setTangent(Math.toRadians(90))
+                        .splineToSplineHeading(new Pose2d(55, 50, Math.toRadians(75)), Math.toRadians(90))
+                        .splineToConstantHeading(new Vector2d(55, 56), Math.toRadians(90))
+                        .setTangent(Math.toRadians(0))
+                        .setVelConstraint(new TranslationalVelocityConstraint(10))
+                        .splineToConstantHeading(new Vector2d(60, 56), Math.toRadians(0))
+                        .splineToSplineHeading(new Pose2d(61, 56, Math.toRadians(90)), Math.toRadians(0))
+                        .splineToConstantHeading(new Vector2d(63, 63), Math.toRadians(90))
+                        .resetVelConstraint()
+
+                        // Spline to shooting position
+                        .setTangent(Math.toRadians(-110))
+                        .splineToSplineHeading(new Pose2d(55, 40, Math.toRadians(-31)), Math.toRadians(-90))
+                        .splineToConstantHeading(new Vector2d(55, 10), Math.toRadians(-90))
+
+                        // Give robot time to shoot
+                        .waitSeconds(3)
+
+                        // == THIRD SET (3) ==
+
+                        // Spline to set #3
+                        .setTangent(Math.toRadians(145))
+                        .splineToSplineHeading(new Pose2d(36, 23, Math.toRadians(70)), Math.toRadians(145))
+                        .setVelConstraint(new TranslationalVelocityConstraint(13))
+                        .splineToConstantHeading(new Vector2d(34, 25), Math.toRadians(90))
+                        .setVelConstraint(new TranslationalVelocityConstraint(13))
+                        .splineToConstantHeading(new Vector2d(34, 53), Math.toRadians(90))
+                        .resetVelConstraint()
+                        .splineToSplineHeading(new Pose2d(34, 63, Math.toRadians(90)), Math.toRadians(-90))
+
+                        // Spline to shooting position
+                        .setTangent(Math.toRadians(-70))
+                        .splineToSplineHeading(new Pose2d(55, 10, Math.toRadians(-31)), Math.toRadians(-70))
+
                         .build());
 
 
                         Image img = null;
-        //TODO: download the field from https://www.reddit.com/r/FTC/comments/1nalob0/decode_custom_field_images_meepmeep_compatible/
-        //      and replace the path below with the path of your file
+
+        //TODO: if not on ceclan's laptop (surprisingly), download the field map from https://www.reddit.com/r/FTC/comments/1nalob0/decode_custom_field_images_meepmeep_compatible/
+        // then replace the path below with the path of your .png file
+
         try { img = ImageIO.read(new File("C:\\Users\\cecla\\Documents\\GitHub\\RoboCodes\\MeepMeepTesting\\src\\main\\resources\\background\\season-2025-decode\\field-2025-official.png")); }
         catch(IOException e) {}
 
         meepMeep.setBackground(img)
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
-//                .addEntity(closeBlue)
-//                .addEntity(farBlueMatei)
+                .addEntity(closeBlue)
+                .addEntity(closeRed)
                 .addEntity(farBlue)
+                .addEntity(farRed)
                 .start();
     }
 }

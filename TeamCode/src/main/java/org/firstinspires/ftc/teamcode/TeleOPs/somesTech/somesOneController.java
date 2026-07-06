@@ -46,7 +46,7 @@ public class somesOneController extends LinearOpMode {
 
     // Powers & positions
     int desiredPos = 0; // ideal plate position
-    int plateTolerance = 500;
+    int plateTolerance = 400;
     double maxPlatePower = 1;
     double platePow = 1; // calculated plate power (-maxPlatePower or maxPlatePower)
     double intakePower = 1; // is reversed by X button
@@ -227,6 +227,9 @@ public class somesOneController extends LinearOpMode {
 
                     break;
             }
+
+            telemetry.addData("pow", platePow);
+            telemetry.update();
 
         }
     }
