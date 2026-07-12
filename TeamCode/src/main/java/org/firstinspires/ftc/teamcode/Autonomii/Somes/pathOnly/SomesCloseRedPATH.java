@@ -22,6 +22,8 @@ public class SomesCloseRedPATH extends LinearOpMode {
 
         TrajectorySequence exampleAuto = drive.trajectorySequenceBuilder(startingPose)
 
+                // == PRELOAD (1) ==
+
                 // Spline to first shooting position
                 .setTangent(Math.toRadians(-45))
                 .splineToSplineHeading(new Pose2d(-18, 18, Math.toRadians(-50)), Math.toRadians(-45))
@@ -37,10 +39,10 @@ public class SomesCloseRedPATH extends LinearOpMode {
                 .splineToConstantHeading(new Vector2d(-10, 30), Math.toRadians(90))
                 .splineToConstantHeading(new Vector2d(-10, 45), Math.toRadians(90))
                 .resetVelConstraint()
-                .splineToSplineHeading(new Pose2d(-13, 57, Math.toRadians(90)), Math.toRadians(-90))
+                .splineToSplineHeading(new Pose2d(-13, 50, Math.toRadians(90)), Math.toRadians(-90))
 
                 // Spline to shooting position.
-                .splineToSplineHeading(new Pose2d(-20, 18, Math.toRadians(-40)), Math.toRadians(-110))
+                .splineToSplineHeading(new Pose2d(-20, 18, Math.toRadians(-45)), Math.toRadians(-110))
 
                 // Give robot time to shoot
                 .waitSeconds(1.2)
@@ -55,11 +57,11 @@ public class SomesCloseRedPATH extends LinearOpMode {
                 .setVelConstraint(new TranslationalVelocityConstraint(13))
                 .splineToConstantHeading(new Vector2d(15.5, 53), Math.toRadians(90))
                 .resetVelConstraint()
-                .splineToSplineHeading(new Pose2d(14, 63, Math.toRadians(90)), Math.toRadians(-90))
+                .splineToSplineHeading(new Pose2d(14, 62, Math.toRadians(-90)), Math.toRadians(90))
                 .splineToConstantHeading(new Vector2d(14, 50), Math.toRadians(-90))
 
                 // Spline to shooting position
-                .splineToSplineHeading(new Pose2d(-20, 18, Math.toRadians(-40)), Math.toRadians(-125))
+                .splineToSplineHeading(new Pose2d(-20, 18, Math.toRadians(-35)), Math.toRadians(-125))
 
                 // Give robot time to shoot
                 .waitSeconds(1.2)
@@ -69,7 +71,7 @@ public class SomesCloseRedPATH extends LinearOpMode {
                 // Spline to third set
                 .setTangent(Math.toRadians(0))
                 .splineToSplineHeading(new Pose2d(29, 25, Math.toRadians(70)), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(34, 25), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(34, 23), Math.toRadians(90))
                 .setVelConstraint(new TranslationalVelocityConstraint(13))
                 .splineToConstantHeading(new Vector2d(34, 53), Math.toRadians(90))
                 .resetVelConstraint()
@@ -80,6 +82,8 @@ public class SomesCloseRedPATH extends LinearOpMode {
 
                 // Spline to shooting position
                 .splineToSplineHeading(new Pose2d(-20, 18, Math.toRadians(-25)), Math.toRadians(-100))
+
+                .waitSeconds(100)
 
                 .build();
 

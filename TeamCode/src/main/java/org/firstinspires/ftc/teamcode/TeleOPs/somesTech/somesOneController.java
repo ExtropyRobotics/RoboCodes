@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
-@TeleOp (name = "one Controller SOMES (SOLO)")
+@TeleOp (name = "One Controller SOMES (SOLO)")
 public class somesOneController extends LinearOpMode {
 
     // State list class for state machine
@@ -46,7 +46,7 @@ public class somesOneController extends LinearOpMode {
 
     // Powers & positions
     int desiredPos = 0; // ideal plate position
-    int plateTolerance = 400;
+    int plateTolerance = 500;
     double maxPlatePower = 1;
     double platePow = 1; // calculated plate power (-maxPlatePower or maxPlatePower)
     double intakePower = 1; // is reversed by X button
@@ -54,7 +54,7 @@ public class somesOneController extends LinearOpMode {
     double servoPoz = 0.63; // constant for both close and far
     double motorVelocity = 1300; // changes depending on driver input
     double farVelocity = 1700; // optimal velocity for shooting from afar
-    double closeVelocity = 1300; // optimal velocity
+    double closeVelocity = 1300; // optimal velocity for shooting from close range
 
     // State machine logic & values
     double previousVelocity = 0; // stored velocity value before state machine goes into outtake state
@@ -202,34 +202,31 @@ public class somesOneController extends LinearOpMode {
 
                     // Shoots first artefact
                     if(shootingTimer.seconds() >= 0 && !firstArtefactToggle) {
-                        motorVelocity = previousVelocity - 200;
+                        motorVelocity = previousVelocity - 700;
                         desiredPos -= 8192/3;
                         firstArtefactToggle = true;
                     }
 
                     // Increases RPM to compensate for velocity lost by friction
                     if(shootingTimer.seconds() >= 0.2 && !increaseVeloToggle){
-                        motorVelocity = previousVelocity + 800;
+                        motorVelocity = previousVelocity + 1100;
                         increaseVeloToggle = true;
                     }
 
                     // Shoots last 2 artefacts
-                    if(shootingTimer.seconds() >= 0.25 && !remainingArtefactsToggle){
+                    if(shootingTimer.seconds() >= 0.3 && !remainingArtefactsToggle){
                         desiredPos -= 8192*2/3;
                         remainingArtefactsToggle = true;
                     }
 
                     // Goes back to idle state after all artefacts are launched
-                    if(shootingTimer.seconds() >= 0.5){
+                    if(shootingTimer.seconds() >= 0.8){
                         motorVelocity = previousVelocity; // Sets velocity back to stored value
                         currentState = StateList.Idle;
                     }
 
                     break;
             }
-
-            telemetry.addData("pow", platePow);
-            telemetry.update();
 
         }
     }

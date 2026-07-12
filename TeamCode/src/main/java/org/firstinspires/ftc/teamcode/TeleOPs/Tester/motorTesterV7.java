@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+@Disabled
 @TeleOp (name = "MotorTester7", group = "Tester")
 public class motorTesterV7 extends LinearOpMode {
     DcMotorEx motor1;

@@ -46,7 +46,7 @@ public class teleOpSomes extends LinearOpMode {
 
     // Powers & positions
     int desiredPos = 0; // ideal plate position
-    int plateTolerance = 400;
+    int plateTolerance = 500;
     double maxPlatePower = 1;
     double platePow = 1; // calculated plate power (-maxPlatePower or maxPlatePower)
     double intakePower = 1; // is reversed by X button
@@ -54,7 +54,7 @@ public class teleOpSomes extends LinearOpMode {
     double servoPoz = 0.63; // constant for both close and far
     double motorVelocity = 1300; // changes depending on driver input
     double farVelocity = 1700; // optimal velocity for shooting from afar
-    double closeVelocity = 1300; // optimal velocity
+    double closeVelocity = 1300; // optimal velocity for shooting from close range
 
     // State machine logic & values
     double previousVelocity = 0; // stored velocity value before state machine goes into outtake state
@@ -202,7 +202,7 @@ public class teleOpSomes extends LinearOpMode {
 
                     // Shoots first artefact
                     if(shootingTimer.seconds() >= 0 && !firstArtefactToggle) {
-                        motorVelocity = previousVelocity - 500;
+                        motorVelocity = previousVelocity - 700;
                         desiredPos -= 8192/3;
                         firstArtefactToggle = true;
                     }
@@ -214,13 +214,13 @@ public class teleOpSomes extends LinearOpMode {
                     }
 
                     // Shoots last 2 artefacts
-                    if(shootingTimer.seconds() >= 0.25 && !remainingArtefactsToggle){
+                    if(shootingTimer.seconds() >= 0.3 && !remainingArtefactsToggle){
                         desiredPos -= 8192*2/3;
                         remainingArtefactsToggle = true;
                     }
 
                     // Goes back to idle state after all artefacts are launched
-                    if(shootingTimer.seconds() >= 0.6){
+                    if(shootingTimer.seconds() >= 0.8){
                         motorVelocity = previousVelocity; // Sets velocity back to stored value
                         currentState = StateList.Idle;
                     }
