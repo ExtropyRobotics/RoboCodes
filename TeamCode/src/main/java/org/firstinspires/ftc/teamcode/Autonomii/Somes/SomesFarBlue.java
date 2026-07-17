@@ -30,7 +30,6 @@ public class SomesFarBlue extends LinearOpMode {
     DcMotorEx plateEncoder; // separate encoder for plate (8192 ticks through bore rev encoder)
     CRServo plateServoLeft; // continuous so it's not stuck between 0-1 values
     CRServo plateServoRight; // continuous so it's not stuck between 0-1 values
-    Servo angle; // outtake ramp servo
 
     // Powers & positions
     int desiredPos = 0; // ideal plate position
@@ -39,7 +38,6 @@ public class SomesFarBlue extends LinearOpMode {
     double platePow = 1; // calculated plate power (-0.7 or 0.7)
     double intakePower = 1; // intake runs at max power
     double diff = 0; // used for calculating difference between ideal plate position and real plate position
-    double servoPoz = 0.63; // constant for both close and far
     double motorVelocity = 1250;
     double farVelocity = 1550; // optimal velocity for shooting from afar
     double closeVelocity = 1250; // optimal velocity for shooting from close range (we don't need this here)
@@ -50,9 +48,6 @@ public class SomesFarBlue extends LinearOpMode {
         public void run() {
 
             while (opModeIsActive() && !isStopRequested()) { // While runs through the entirety of the autonomous.
-
-                // Locks servo in position.
-                angle.setPosition(servoPoz);
 
                 // Powers intake and outtake motors for the entirety of the Autonomous.
                 intake.setPower(intakePower);
@@ -90,8 +85,6 @@ public class SomesFarBlue extends LinearOpMode {
         outtake = hardwareMap.get(DcMotorEx.class, "outtake2");
 
         outtake.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        angle = hardwareMap.get(Servo.class, "angle");
 
         plateServoLeft = hardwareMap.get(CRServo.class, "plateServoLeft");
         plateServoRight = hardwareMap.get(CRServo.class, "plateServoRight");
