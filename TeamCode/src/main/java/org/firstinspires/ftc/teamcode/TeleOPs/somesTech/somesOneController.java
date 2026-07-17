@@ -34,7 +34,6 @@ public class somesOneController extends LinearOpMode {
     DcMotorEx plateEncoder; // separate encoder for plate (8192 ticks through bore rev encoder)
     CRServo plateServoLeft; // continuous so it's not stuck between 0-1 values
     CRServo plateServoRight; // continuous so it's not stuck between 0-1 values
-    Servo angle; // ramp servo
 
     // Booleans
     boolean shootToggle = false; // Used for moving plate in the shooting direction.
@@ -51,7 +50,6 @@ public class somesOneController extends LinearOpMode {
     double platePow = 1; // calculated plate power (-maxPlatePower or maxPlatePower)
     double intakePower = 1; // is reversed by X button
     double diff = 0; // used for calculating difference between ideal plate position and real plate position
-    double servoPoz = 0.63; // constant for both close and far
     double motorVelocity = 1300; // changes depending on driver input
     double farVelocity = 1700; // optimal velocity for shooting from afar
     double closeVelocity = 1300; // optimal velocity for shooting from close range
@@ -73,8 +71,6 @@ public class somesOneController extends LinearOpMode {
         outtake = hardwareMap.get(DcMotorEx.class, "outtake2");
 
         outtake.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        angle = hardwareMap.get(Servo.class, "angle");
 
         plateServoLeft = hardwareMap.get(CRServo.class, "plateServoLeft");
         plateServoRight = hardwareMap.get(CRServo.class, "plateServoRight");
@@ -98,9 +94,6 @@ public class somesOneController extends LinearOpMode {
                     -gamepad1.left_stick_x,
                     -gamepad1.right_stick_x
             ));
-
-            // Locks servo in position.
-            angle.setPosition(servoPoz);
 
             // Powers intake and outtake motors for the entirety of the TeleOP.
             intake.setPower(intakePower);
@@ -200,6 +193,7 @@ public class somesOneController extends LinearOpMode {
 
                 case Outtake:
 
+
                     // Shoots first artefact
                     if(shootingTimer.seconds() >= 0 && !firstArtefactToggle) {
                         motorVelocity = previousVelocity - 700;
@@ -209,7 +203,7 @@ public class somesOneController extends LinearOpMode {
 
                     // Increases RPM to compensate for velocity lost by friction
                     if(shootingTimer.seconds() >= 0.2 && !increaseVeloToggle){
-                        motorVelocity = previousVelocity + 1100;
+                        motorVelocity = previousVelocity + 1300;
                         increaseVeloToggle = true;
                     }
 
@@ -220,7 +214,7 @@ public class somesOneController extends LinearOpMode {
                     }
 
                     // Goes back to idle state after all artefacts are launched
-                    if(shootingTimer.seconds() >= 0.8){
+                    if(shootingTimer.seconds() >= 1.2){
                         motorVelocity = previousVelocity; // Sets velocity back to stored value
                         currentState = StateList.Idle;
                     }
