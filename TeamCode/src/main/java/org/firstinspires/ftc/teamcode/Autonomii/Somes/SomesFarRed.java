@@ -108,7 +108,7 @@ public class SomesFarRed extends LinearOpMode {
 
                 // Spline to shoot preload
                 .setTangent(Math.toRadians(155))
-                .splineToSplineHeading(new Pose2d(50, 16, Math.toRadians(-17)), Math.toRadians(155))
+                .splineToSplineHeading(new Pose2d(50, 16, Math.toRadians(-27)), Math.toRadians(155))
 
                 // Shoot first ball
                 .UNSTABLE_addTemporalMarkerOffset(0.5, ()->{
@@ -122,7 +122,7 @@ public class SomesFarRed extends LinearOpMode {
                 }) // 1.2
 
                 // Shoot third ball
-                .UNSTABLE_addTemporalMarkerOffset(3, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(2.8, ()->{
                     desiredPos -= 8192/3;
                 }) // 1.3
 
@@ -144,6 +144,10 @@ public class SomesFarRed extends LinearOpMode {
                     desiredPos += 8192/3;
                 }) // 2.1
 
+                .UNSTABLE_addTemporalMarkerOffset(0.7, ()->{
+                    desiredPos += 8192/3;
+                })
+
                 // Third ball is NOT worth it </3
 
                 // Spline to 2nd ball
@@ -155,11 +159,11 @@ public class SomesFarRed extends LinearOpMode {
                 // Spline to shooting position
                 .setTangent(Math.toRadians(-105))
                 .splineToConstantHeading(new Vector2d(59, 38), Math.toRadians(-100))
-                .splineToSplineHeading(new Pose2d(55, 16, Math.toRadians(16)), Math.toRadians(-100))
+                .splineToSplineHeading(new Pose2d(55, 16, Math.toRadians(-27)), Math.toRadians(-100))
 
                 // Shoot first ball, decrease RPM to fix constant overshoot
                 .UNSTABLE_addTemporalMarkerOffset(0.25, ()->{
-                    desiredPos -= 8192/3;
+                    desiredPos -= 8192*2/3;
                     motorVelocity = farVelocity - 100;
                 }) // 2.2
 
@@ -175,10 +179,10 @@ public class SomesFarRed extends LinearOpMode {
 
                 // Spline to set #3
                 .setTangent(Math.toRadians(160))
-                .splineToSplineHeading(new Pose2d(39, 20, Math.toRadians(65)), Math.toRadians(160))
-                .splineToConstantHeading(new Vector2d(34, 22), Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(37, 20, Math.toRadians(90)), Math.toRadians(160))
+                .splineToConstantHeading(new Vector2d(37, 22), Math.toRadians(90))
                 .setVelConstraint(new TranslationalVelocityConstraint(11))
-                .splineToConstantHeading(new Vector2d(34, 53), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(37, 53), Math.toRadians(90))
                 .resetVelConstraint()
                 .splineToSplineHeading(new Pose2d(37, 63, Math.toRadians(90)), Math.toRadians(-65))
 
@@ -194,7 +198,7 @@ public class SomesFarRed extends LinearOpMode {
                 }) // 3.2
 
                 // Spline to shoot
-                .splineToSplineHeading(new Pose2d(55, 16, Math.toRadians(-9)), Math.toRadians(-65))
+                .splineToSplineHeading(new Pose2d(55, 16, Math.toRadians(-22)), Math.toRadians(-65))
 
                 // Shoot first ball
                 .UNSTABLE_addTemporalMarkerOffset(0.25, ()->{

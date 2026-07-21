@@ -51,8 +51,8 @@ public class teleOpSomes extends LinearOpMode {
     double intakePower = 1; // is reversed by X button
     double diff = 0; // used for calculating difference between ideal plate position and real plate position
     double motorVelocity = 1300; // changes depending on driver input
-    double farVelocity = 1700; // optimal velocity for shooting from afar
-    double closeVelocity = 1300; // optimal velocity for shooting from close range
+    double farVelocity = 2000; // optimal velocity for shooting from afar
+    double closeVelocity = 1350; // optimal velocity for shooting from close range
 
     // State machine logic & values
     double previousVelocity = 0; // stored velocity value before state machine goes into outtake state
@@ -203,7 +203,7 @@ public class teleOpSomes extends LinearOpMode {
 
                     // Increases RPM to compensate for velocity lost by friction
                     if(shootingTimer.seconds() >= 0.2 && !increaseVeloToggle){
-                        motorVelocity = previousVelocity + 1300;
+                        motorVelocity = previousVelocity + 1600;
                         increaseVeloToggle = true;
                     }
 
