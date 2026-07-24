@@ -14,8 +14,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
-@TeleOp (name = "TeleOp CCC (DUO)")
-public class CCCTeleOp extends LinearOpMode {
+@TeleOp (name = "TeleOP CCC (DUO)")
+    public class CCCTeleOp extends LinearOpMode {
 
     // State list class for state machine
     public enum StateList{
@@ -45,6 +45,7 @@ public class CCCTeleOp extends LinearOpMode {
     boolean stateMachineToggle = false; // Used for state machine button
 
     // Powers & positions
+    int fullPlateRotation = 8192; // Ticks encoder recognizes for 1 full rotation
     int desiredPos = 0; // ideal plate position
     int plateTolerance = 500;
     double maxPlatePower = 1;
@@ -52,8 +53,8 @@ public class CCCTeleOp extends LinearOpMode {
     double intakePower = 1; // is reversed by X button
     double diff = 0; // used for calculating difference between ideal plate position and real plate position
     double motorVelocity = 1300; // changes depending on driver input
-    double farVelocity = 2000; // optimal velocity for shooting from afar
-    double closeVelocity = 1350; // optimal velocity for shooting from close range
+    double farVelocity = 2200; // optimal velocity for shooting from afar
+    double closeVelocity = 850; // optimal velocity for shooting from close range
 
     // State machine logic & values
     double previousVelocity = 0; // stored velocity value before state machine goes into outtake state
@@ -109,7 +110,7 @@ public class CCCTeleOp extends LinearOpMode {
             // Move the plate towards the launching direction.
             if(gamepad2.x){
                 if(!shootToggle){
-                    desiredPos -= 8192/3;
+                    desiredPos -= fullPlateRotation/3;
                     shootToggle = true;
                 }
             } else shootToggle = false;
@@ -117,7 +118,7 @@ public class CCCTeleOp extends LinearOpMode {
             // Move the plate towards the storing direction.
             if(gamepad2.b){
                 if(!storeToggle){
-                    desiredPos += 8192/3;
+                    desiredPos += fullPlateRotation/3;
                     storeToggle = true;
                 }
             } else storeToggle = false;
@@ -201,7 +202,7 @@ public class CCCTeleOp extends LinearOpMode {
                     // Shoots first artefact
                     if(shootingTimer.seconds() >= 0 && !firstArtefactToggle) {
                         motorVelocity = previousVelocity - 700;
-                        desiredPos -= 8192/3;
+                        desiredPos -= fullPlateRotation/3;
                         firstArtefactToggle = true;
                     }
 
@@ -213,7 +214,7 @@ public class CCCTeleOp extends LinearOpMode {
 
                     // Shoots last 2 artefacts
                     if(shootingTimer.seconds() >= 0.3 && !remainingArtefactsToggle){
-                        desiredPos -= 8192*2/3;
+                        desiredPos -= fullPlateRotation*2/3;
                         remainingArtefactsToggle = true;
                     }
 

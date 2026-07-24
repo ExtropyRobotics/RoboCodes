@@ -25,6 +25,7 @@ public class FarRed_CCC extends LinearOpMode {
     // Hardware
     DcMotorEx intake; // intake motor
     DcMotorEx outtake; // outtake motor
+    DcMotorEx outtake2;
     DcMotorEx plateEncoder; // separate encoder for plate (8192 ticks through bore rev encoder)
     CRServo plateServoLeft; // continuous so it's not stuck between 0-1 values
     CRServo plateServoRight; // continuous so it's not stuck between 0-1 values
@@ -37,7 +38,7 @@ public class FarRed_CCC extends LinearOpMode {
     double intakePower = 1; // intake runs at max power
     double diff = 0; // used for calculating difference between ideal plate position and real plate position
     double motorVelocity = 1250;
-    double farVelocity = 1550; // optimal velocity for shooting from afar
+    double farVelocity = 1350; // optimal velocity for shooting from afar
     double closeVelocity = 1250; // optimal velocity for shooting from close range (we don't need this here)
 
 
@@ -50,6 +51,7 @@ public class FarRed_CCC extends LinearOpMode {
                 // Powers intake and outtake motors for the entirety of the Autonomous.
                 intake.setPower(intakePower);
                 outtake.setVelocity(motorVelocity);
+                outtake2.setVelocity(motorVelocity);
 
                 // Calculates the difference between the target position and the actual position.
                 diff = desiredPos - plateEncoder.getCurrentPosition();
@@ -81,8 +83,10 @@ public class FarRed_CCC extends LinearOpMode {
         // HardwareMap in correlation with Configuratie.txt (I hope)
 
         outtake = hardwareMap.get(DcMotorEx.class, "outtake2");
+        outtake2 = hardwareMap.get(DcMotorEx.class, "outtake2");
 
         outtake.setDirection(DcMotorSimple.Direction.REVERSE);
+        outtake2.setDirection(DcMotorSimple.Direction.REVERSE);
 
         plateServoLeft = hardwareMap.get(CRServo.class, "plateServoLeft");
         plateServoRight = hardwareMap.get(CRServo.class, "plateServoRight");
