@@ -43,6 +43,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
     boolean farToggle =  false; // Used for switching outtake motor velocity.
     boolean closeToggle =  false; // Used for switching outtake motor velocity.
     boolean stateMachineToggle = false; // Used for state machine button
+    boolean pulete; // pulete
 
     // Powers & positions
     int fullPlateRotation = 8192; // Ticks encoder recognizes for 1 full rotation
@@ -54,7 +55,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
     double diff = 0; // used for calculating difference between ideal plate position and real plate position
     double motorVelocity = 1300; // changes depending on driver input
     double farVelocity = 2200; // optimal velocity for shooting from afar
-    double closeVelocity = 850; // optimal velocity for shooting from close range
+    double closeVelocity = 920; // optimal velocity for shooting from close range
 
     // State machine logic & values
     double previousVelocity = 0; // stored velocity value before state machine goes into outtake state
@@ -198,29 +199,13 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
                 case Outtake:
 
-
-                    // Shoots first artefact
-                    if(shootingTimer.seconds() >= 0 && !firstArtefactToggle) {
-                        motorVelocity = previousVelocity - 700;
-                        desiredPos -= fullPlateRotation/3;
+                    if(shootingTimer.seconds() >= 0 && !firstArtefactToggle){
+                        motorVelocity = previousVelocity + 140;
+                        desiredPos -= fullPlateRotation;
                         firstArtefactToggle = true;
                     }
 
-                    // Increases RPM to compensate for velocity lost by friction
-                    if(shootingTimer.seconds() >= 0.2 && !increaseVeloToggle){
-                        motorVelocity = previousVelocity + 1600;
-                        increaseVeloToggle = true;
-                    }
-
-                    // Shoots last 2 artefacts
-                    if(shootingTimer.seconds() >= 0.3 && !remainingArtefactsToggle){
-                        desiredPos -= fullPlateRotation*2/3;
-                        remainingArtefactsToggle = true;
-                    }
-
-                    // Goes back to idle state after all artefacts are launched
                     if(shootingTimer.seconds() >= 1.2){
-                        motorVelocity = previousVelocity; // Sets velocity back to stored value
                         currentState = StateList.Idle;
                     }
 

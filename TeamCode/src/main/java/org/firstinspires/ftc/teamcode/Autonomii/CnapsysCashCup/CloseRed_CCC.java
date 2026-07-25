@@ -30,19 +30,19 @@ public class CloseRed_CCC extends LinearOpMode {
     DcMotorEx plateEncoder; // separate encoder for plate (8192 ticks through bore rev encoder)
     CRServo plateServoLeft; // continuous so it's not stuck between 0-1 values
     CRServo plateServoRight; // continuous so it's not stuck between 0-1 values
-    Servo angle; // outtake ramp servo
 
     // Powers & positions
+    int fullPlateRotation = 8192; // Ticks encoder recognizes for 1 full rotation
     int desiredPos = 0; // ideal plate position
-    int plateTolerance = 650;
-    double maxPlatePower = 1; // best power for plate
-    double platePow = 1; // calculated plate power (-0.7 or 0.7)
-    double intakePower = 1; // intake runs at max power
+    int plateTolerance = 500;
+    double maxPlatePower = 1;
+    double platePow = 1; // calculated plate power (-maxPlatePower or maxPlatePower)
+    double intakePower = 1; // is reversed by X button
     double diff = 0; // used for calculating difference between ideal plate position and real plate position
-    double servoPoz = 0.63; // constant for both close and far
-    double motorVelocity = 750;
-    double farVelocity = 1700; // optimal velocity for shooting from afar (we don't need this here)
-    double closeVelocity = 1250; // optimal velocity for shooting from close range
+    double motorVelocity = 1300; // changes depending on driver input
+    double farVelocity = 2200; // optimal velocity for shooting from afar
+    double closeVelocity = 850+70; // optimal velocity for shooting from close range
+    boolean pulete; // pulete
 
 
     class autoThread implements Runnable { // Using thread to add a new while
@@ -50,9 +50,6 @@ public class CloseRed_CCC extends LinearOpMode {
         public void run() {
 
             while (opModeIsActive() && !isStopRequested()) { // While runs through the entirety of the autonomous.
-
-                // Locks servo in position.
-                angle.setPosition(servoPoz);
 
                 // Powers intake and outtake motors for the entirety of the Autonomous.
                 intake.setPower(intakePower);
@@ -91,10 +88,8 @@ public class CloseRed_CCC extends LinearOpMode {
         outtake = hardwareMap.get(DcMotorEx.class, "outtake2");
         outtake2 = hardwareMap.get(DcMotorEx.class, "outtake");
 
-        outtake.setDirection(DcMotorSimple.Direction.REVERSE);
         outtake2.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        angle = hardwareMap.get(Servo.class, "angle");
+        outtake.setDirection(DcMotorSimple.Direction.REVERSE);
 
         plateServoLeft = hardwareMap.get(CRServo.class, "plateServoLeft");
         plateServoRight = hardwareMap.get(CRServo.class, "plateServoRight");
@@ -126,17 +121,17 @@ public class CloseRed_CCC extends LinearOpMode {
                 // Shoot first ball (increase velo to compensate RPM lost by friction)
                 .UNSTABLE_addTemporalMarkerOffset(-1.5, ()->{
                     desiredPos -= 8192/3;
-                    motorVelocity = closeVelocity;
+                    motorVelocity = closeVelocity + 200;
                 }) // 1.1
-
                 // Shoot second ball
-                .UNSTABLE_addTemporalMarkerOffset(-0.7, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(-1, ()->{
                     desiredPos -= 8192/3;
                 }) // 1.2
 
                 // Shoot third ball
-                .UNSTABLE_addTemporalMarkerOffset(-0.2, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(-0.7, ()->{
                     desiredPos -= 8192/3;
+                    pulete = true;
                 }) // 1.3
 
                 // == FIRST SET (2) ==
@@ -159,16 +154,6 @@ public class CloseRed_CCC extends LinearOpMode {
                     desiredPos += 8192/3;
                 }) // 2.2
 
-                // Reverse intake in-case of a 4th unexpected ball
-                .UNSTABLE_addTemporalMarkerOffset(1, ()->{
-                    intakePower = -1;
-                }) // 2.3
-
-                // Resets intake
-                .UNSTABLE_addTemporalMarkerOffset(1.2, ()->{
-                    intakePower = 1;
-                }) // 2.4
-
                 // (Third ball comes in without needing another rotate)
 
                 // Spline to shooting position.
@@ -177,20 +162,20 @@ public class CloseRed_CCC extends LinearOpMode {
                 // Give robot time to shoot
                 .waitSeconds(0.9)
 
-                // Shoot first ball
+                // Shoot first ball (increase velo to compensate RPM lost by friction)
                 .UNSTABLE_addTemporalMarkerOffset(-1.5, ()->{
                     desiredPos -= 8192/3;
-                }) // 2.3
-
+                    motorVelocity = closeVelocity + 200;
+                }) // 1.1
                 // Shoot second ball
-                .UNSTABLE_addTemporalMarkerOffset(-0.7, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(-1, ()->{
                     desiredPos -= 8192/3;
-                }) // 2.4
+                }) // 1.2
 
                 // Shoot third ball
-                .UNSTABLE_addTemporalMarkerOffset(-0.3, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(-0.7, ()->{
                     desiredPos -= 8192/3;
-                }) // 2.5
+                }) // 1.3
 
                 // == SECOND SET (3) ==
 
@@ -215,35 +200,25 @@ public class CloseRed_CCC extends LinearOpMode {
                     desiredPos += 8192/3;
                 }) // 3.2
 
-                // Reverse intake in-case of a 4th unexpected ball
-                .UNSTABLE_addTemporalMarkerOffset(1, ()->{
-                    intakePower = -1;
-                }) // 3.3
-
-                // Reset intake
-                .UNSTABLE_addTemporalMarkerOffset(1.2, ()->{
-                    intakePower = 1;
-                }) // 3.4
-
                 // (Third ball comes in without needing another rotate)
 
                 // Spline to shooting position
                 .splineToSplineHeading(new Pose2d(-20, 18, Math.toRadians(-35)), Math.toRadians(-125))
 
-                // Shoot first ball
+                // Shoot first ball (increase velo to compensate RPM lost by friction)
                 .UNSTABLE_addTemporalMarkerOffset(-0.8, ()->{
                     desiredPos -= 8192/3;
-                }) // 3.3
-
+                    motorVelocity = closeVelocity + 200;
+                }) // 1.1
                 // Shoot second ball
-                .UNSTABLE_addTemporalMarkerOffset(-0.1, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(-0.3, ()->{
                     desiredPos -= 8192/3;
-                }) // 3.4
+                }) // 1.2
 
                 // Shoot third ball
-                .UNSTABLE_addTemporalMarkerOffset(0.15, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(0, ()->{
                     desiredPos -= 8192/3;
-                }) // 3.5
+                }) // 1.3
 
                 // Give robot time to shoot
                 .waitSeconds(1)
@@ -286,21 +261,20 @@ public class CloseRed_CCC extends LinearOpMode {
                 // Spline to shooting position
                 .splineToSplineHeading(new Pose2d(-18, 16, Math.toRadians(-30)), Math.toRadians(-100))
 
-                // Shoot first ball
+                // Shoot first ball (increase velo to compensate RPM lost by friction)
                 .UNSTABLE_addTemporalMarkerOffset(-0.7, ()->{
                     desiredPos -= 8192/3;
-                    motorVelocity = closeVelocity - 50;
-                }) // 4.3
-
+                    motorVelocity = closeVelocity + 200;
+                }) // 1.1
                 // Shoot second ball
-                .UNSTABLE_addTemporalMarkerOffset(0.1, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(-0.2, ()->{
                     desiredPos -= 8192/3;
-                }) // 4.4
+                }) // 1.2
 
                 // Shoot third ball
-                .UNSTABLE_addTemporalMarkerOffset(0.8, ()->{
+                .UNSTABLE_addTemporalMarkerOffset(0.1, ()->{
                     desiredPos -= 8192/3;
-                }) // 4.5
+                }) // 1.3
 
                 .waitSeconds(100)
 
