@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.TeleOPs.CnapsysCashCup;
 import static java.lang.Math.signum;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -14,6 +15,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
+@Disabled
 @TeleOp (name = "TeleOP CCC (DUO)")
     public class CCCTeleOp extends LinearOpMode {
 
@@ -55,7 +57,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
     double diff = 0; // used for calculating difference between ideal plate position and real plate position
     double motorVelocity = 1300; // changes depending on driver input
     double farVelocity = 2200; // optimal velocity for shooting from afar
-    double closeVelocity = 920; // optimal velocity for shooting from close range
+    double closeVelocity = 750; // optimal velocity for shooting from close range
 
     // State machine logic & values
     double previousVelocity = 0; // stored velocity value before state machine goes into outtake state

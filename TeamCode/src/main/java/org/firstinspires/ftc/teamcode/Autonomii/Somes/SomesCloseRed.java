@@ -19,7 +19,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-@Disabled
+//@Disabled
 @Autonomous (name = "CloseRed")
 
 public class SomesCloseRed extends LinearOpMode {

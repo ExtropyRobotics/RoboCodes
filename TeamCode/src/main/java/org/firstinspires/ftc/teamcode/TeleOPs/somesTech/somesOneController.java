@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
-@Disabled
+//@Disabled
 @TeleOp (name = "One Controller SOMES (SOLO)")
 public class somesOneController extends LinearOpMode {
 

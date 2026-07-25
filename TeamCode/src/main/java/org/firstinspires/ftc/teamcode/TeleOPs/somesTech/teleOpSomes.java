@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
-@Disabled
+//@Disabled
 @TeleOp (name = "teleOp SOMES (DUO)")
 public class teleOpSomes extends LinearOpMode {
 
