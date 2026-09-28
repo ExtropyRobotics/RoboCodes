@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 //@Disabled
-@Autonomous (name = "CloseRed")
+@Autonomous (name = "CloseRedaaaa")
 
 public class SomesCloseRed extends LinearOpMode {
     Pose2d startingPose = new Pose2d(-50, 48, Math.toRadians(-60)); // Starts at blue goal facing blue goal
@@ -111,7 +111,7 @@ public class SomesCloseRed extends LinearOpMode {
                 .splineToSplineHeading(new Pose2d(-18, 18, Math.toRadians(-50)), Math.toRadians(-45))
 
                 // Give robot time to shoot
-                .waitSeconds(0.7)
+                .waitSeconds(0.9)
 
                 // Shoot first ball (increase velo to compensate RPM lost by friction)
                 .UNSTABLE_addTemporalMarkerOffset(-1.3, ()->{
@@ -133,10 +133,10 @@ public class SomesCloseRed extends LinearOpMode {
                 // Spline to the first set
                 .splineToSplineHeading(new Pose2d(-9, 17, Math.toRadians(90)), Math.toRadians(90))
                 .setVelConstraint(new TranslationalVelocityConstraint(13))
-                .splineToConstantHeading(new Vector2d(-6, 30), Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(-6, 45), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(-9, 30), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(-9, 45), Math.toRadians(90))
                 .resetVelConstraint()
-                .splineToConstantHeading(new Vector2d(-9, 52), Math.toRadians(-90))
+                .splineToConstantHeading(new Vector2d(-9, 54), Math.toRadians(-90))
 
                 // Store first ball
                 .UNSTABLE_addTemporalMarkerOffset(-1.8, ()->{
@@ -152,7 +152,7 @@ public class SomesCloseRed extends LinearOpMode {
                 // (Third ball comes in without needing another rotate)
 
                 // Spline to shooting position.
-                .splineToSplineHeading(new Pose2d(-20, 18, Math.toRadians(-45)), Math.toRadians(-110))
+                .splineToSplineHeading(new Pose2d(-20, 18, Math.toRadians(-45)), Math.toRadians(-35))
 
                 // Give robot time to shoot
                 .waitSeconds(0.8)
@@ -177,14 +177,14 @@ public class SomesCloseRed extends LinearOpMode {
 
                 // Spline to second set
                 .setTangent(Math.toRadians(0))
-                .splineToSplineHeading(new Pose2d(6, 15, Math.toRadians(90)), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(11, 15), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(13, 16), Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(15, 15, Math.toRadians(90)), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(19, 15), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(19, 16), Math.toRadians(90))
                 .setVelConstraint(new TranslationalVelocityConstraint(13))
-                .splineToConstantHeading(new Vector2d(13, 53), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(19, 53), Math.toRadians(90))
                 .resetVelConstraint()
-                .splineToSplineHeading(new Pose2d(13, 59, Math.toRadians(90)), Math.toRadians(-90))
-                .splineToConstantHeading(new Vector2d(13, 50), Math.toRadians(-90))
+                .splineToSplineHeading(new Pose2d(19, 62, Math.toRadians(90)), Math.toRadians(-90))
+                .splineToConstantHeading(new Vector2d(19, 50), Math.toRadians(-90))
 
                 // Store first ball
                 .UNSTABLE_addTemporalMarkerOffset(-2.9, ()->{
@@ -200,7 +200,7 @@ public class SomesCloseRed extends LinearOpMode {
                 // (Third ball comes in without needing another rotate)
 
                 // Spline to shooting position
-                .splineToSplineHeading(new Pose2d(-20, 18, Math.toRadians(-35)), Math.toRadians(-125))
+                .splineToSplineHeading(new Pose2d(-20, 18, Math.toRadians(-35)), Math.toRadians(-35))
 
                 // Shoot first ball
                 .UNSTABLE_addTemporalMarkerOffset(-0.5, ()->{
@@ -219,18 +219,18 @@ public class SomesCloseRed extends LinearOpMode {
                 }) // 3.5
 
                 // Give robot time to shoot
-                .waitSeconds(0.8)
+                .waitSeconds(1)
 
                 // == THIRD SET (4) ==
 
                 // Spline to third set
                 .setTangent(Math.toRadians(0))
-                .splineToSplineHeading(new Pose2d(31, 23, Math.toRadians(90)), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(35, 24), Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(36, 23, Math.toRadians(90)), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(40, 24), Math.toRadians(90))
                 .setVelConstraint(new TranslationalVelocityConstraint(13))
-                .splineToConstantHeading(new Vector2d(35, 53), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(40, 53), Math.toRadians(90))
                 .resetVelConstraint()
-                .splineToSplineHeading(new Pose2d(35, 59, Math.toRadians(90)), Math.toRadians(-90))
+                .splineToSplineHeading(new Pose2d(40, 63, Math.toRadians(90)), Math.toRadians(-90))
 
                 // Store first ball
                 .UNSTABLE_addTemporalMarkerOffset(-2.4, ()->{
@@ -244,10 +244,10 @@ public class SomesCloseRed extends LinearOpMode {
                 }) // 4.2
 
                 // Spline to open gate
-                .splineToSplineHeading(new Pose2d(-6, 48, Math.toRadians(0)), Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(2, 48, Math.toRadians(0)), Math.toRadians(90))
 
                 // Spline to shooting position
-                .splineToSplineHeading(new Pose2d(-21, 16, Math.toRadians(-30)), Math.toRadians(-100))
+                .splineToSplineHeading(new Pose2d(-18, 16, Math.toRadians(-30)), Math.toRadians(-30))
 
                 // Shoot first ball
                 .UNSTABLE_addTemporalMarkerOffset(-0.5, ()->{

@@ -14,14 +14,15 @@ public class NuSuntProst extends LinearOpMode {
     DcMotor motorDreaptaFata = null;
     DcMotor motorStangaSpate = null;
     DcMotor motorDreaptaSpate = null;
-
+    boolean pulete = true;
     @Override
     public void runOpMode() throws InterruptedException {
-
-        motorDreaptaSpate = hardwareMap.get(DcMotor.class, "motorStF");
-        motorDreaptaFata = hardwareMap.get(DcMotor.class, "motorDrF");
-        motorStangaSpate = hardwareMap.get(DcMotor.class, "motorStS");
-        motorStangaFata = hardwareMap.get(DcMotor.class, "motorDrS");
-                    //AM UITAT TOT DE AMU 2 ANI BAG PULA DE LA MARIO
+        while(pulete) {
+            motorDreaptaSpate = hardwareMap.get(DcMotor.class, "motorStF");
+            motorDreaptaFata = hardwareMap.get(DcMotor.class, "motorDrF");
+            motorStangaSpate = hardwareMap.get(DcMotor.class, "motorStS");
+            motorStangaFata = hardwareMap.get(DcMotor.class, "motorDrS");
+            //AM UITAT TOT DE AMU 2 ANI BAG PULA DE LA MARIO
+        }
     }
 }

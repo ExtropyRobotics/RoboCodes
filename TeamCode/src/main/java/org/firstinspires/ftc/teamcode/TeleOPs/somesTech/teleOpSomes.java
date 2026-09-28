@@ -3,14 +3,12 @@ package org.firstinspires.ftc.teamcode.TeleOPs.somesTech;
 import static java.lang.Math.signum;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
@@ -44,6 +42,7 @@ public class teleOpSomes extends LinearOpMode {
     boolean farToggle =  false; // Used for switching outtake motor velocity.
     boolean closeToggle =  false; // Used for switching outtake motor velocity.
     boolean stateMachineToggle = false; // Used for state machine button
+    boolean pulete; // pulete
 
     // Powers & positions
     int desiredPos = 0; // ideal plate position
@@ -195,10 +194,12 @@ public class teleOpSomes extends LinearOpMode {
 
                 case Outtake:
 
+                    ///  crucial
+                    pulete = true;
 
                     // Shoots first artefact
                     if(shootingTimer.seconds() >= 0 && !firstArtefactToggle) {
-                        motorVelocity = previousVelocity - 700;
+                        motorVelocity = previousVelocity - 600;
                         desiredPos -= 8192/3;
                         firstArtefactToggle = true;
                     }
@@ -210,13 +211,13 @@ public class teleOpSomes extends LinearOpMode {
                     }
 
                     // Shoots last 2 artefacts
-                    if(shootingTimer.seconds() >= 0.3 && !remainingArtefactsToggle){
-                        desiredPos -= 8192*2/3;
+                    if(shootingTimer.seconds() >= 0.5 && !remainingArtefactsToggle){
+                        desiredPos -= 8192*2;
                         remainingArtefactsToggle = true;
                     }
 
                     // Goes back to idle state after all artefacts are launched
-                    if(shootingTimer.seconds() >= 1.2){
+                    if(shootingTimer.seconds() >= 1.5){
                         motorVelocity = previousVelocity; // Sets velocity back to stored value
                         currentState = StateList.Idle;
                     }

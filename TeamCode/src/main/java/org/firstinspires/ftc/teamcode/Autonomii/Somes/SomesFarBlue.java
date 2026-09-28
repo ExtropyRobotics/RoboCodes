@@ -178,7 +178,7 @@ public class SomesFarBlue extends LinearOpMode {
                 .setTangent(Math.toRadians(-160))
                 .splineToSplineHeading(new Pose2d(39, -20, Math.toRadians(-90)), Math.toRadians(-160))
                 .splineToConstantHeading(new Vector2d(34, -22), Math.toRadians(-90))
-                .setVelConstraint(new TranslationalVelocityConstraint(11))
+                .setVelConstraint(new TranslationalVelocityConstraint(10))
                 .splineToConstantHeading(new Vector2d(34, -53), Math.toRadians(-90))
                 .resetVelConstraint()
                 .splineToSplineHeading(new Pose2d(37, -63, Math.toRadians(-90)), Math.toRadians(65))
@@ -195,7 +195,7 @@ public class SomesFarBlue extends LinearOpMode {
                 }) // 3.2
 
                 // Spline to shoot
-                .splineToSplineHeading(new Pose2d(55, -16, Math.toRadians(12)), Math.toRadians(65))
+                .splineToSplineHeading(new Pose2d(55, -16, Math.toRadians(12)), Math.toRadians(55))
 
                 // Shoot first ball
                 .UNSTABLE_addTemporalMarkerOffset(0.25, ()->{

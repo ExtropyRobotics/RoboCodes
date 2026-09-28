@@ -58,8 +58,8 @@ public class Zalau3am extends LinearOpMode {
                 if(timer.seconds() >= 0.05) {
                     // Powers intake and outtake motors for the entirety of the Autonomous.
                     intake.setPower(intakePower);
-                    outtake.setPower(motorVelocity);
-                    outtake2.setPower(motorVelocity);
+                    outtake.setVelocity(motorVelocity);
+                    outtake2.setVelocity(motorVelocity);
 
 
                     // == PLATE CALCULATIONS ==
@@ -123,10 +123,10 @@ public class Zalau3am extends LinearOpMode {
 
                 // Start outtake motor
                 .UNSTABLE_addTemporalMarkerOffset(0, () -> {
-                    timer.reset();
-                    motorVelocity = 0.5;
+                    motorVelocity = closeVelocity;
                 })
 
+                // wait for motor to reach rpm
                 .waitSeconds(2)
 
                 // == PRELOAD (1) ==
@@ -136,8 +136,9 @@ public class Zalau3am extends LinearOpMode {
 
                 // Shoot second ball
                 .UNSTABLE_addTemporalMarkerOffset(0, ()->{
+                    motorVelocity = closeVelocity + 140;
                     desiredPos -= 8192;
-                }) // 1.2
+                })
 
 
                 // == FIRST SET (2) ==

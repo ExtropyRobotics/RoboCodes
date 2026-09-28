@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@Disabled
 @TeleOp (name = "MotorTester", group = "Tester")
 public class MotorTester2 extends LinearOpMode {
     DcMotorEx motor;
@@ -22,8 +21,6 @@ public class MotorTester2 extends LinearOpMode {
             if(gamepad1.right_bumper) motor.setDirection(DcMotorSimple.Direction.REVERSE);
             if(gamepad1.left_bumper) motor.setDirection(DcMotorSimple.Direction.FORWARD);
 
-            telemetry.addData("RPM1:", motor.getVelocity());
-            telemetry.update();
         }
     }
 }
