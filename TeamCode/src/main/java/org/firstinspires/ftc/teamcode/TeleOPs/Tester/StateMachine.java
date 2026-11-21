@@ -1,19 +1,13 @@
-package org.firstinspires.ftc.teamcode.TeleOPs;
+package org.firstinspires.ftc.teamcode.TeleOPs.Tester;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-
 @TeleOp (name = "test")
-public class test extends LinearOpMode {
+public class StateMachine extends LinearOpMode {
 
     public enum stateList{
         Motor,

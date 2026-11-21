@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
-@Disabled
 @TeleOp (name = "hueTester", group = "Tester")
 public class hueTester extends LinearOpMode {
     NormalizedColorSensor colorSensor = null;
